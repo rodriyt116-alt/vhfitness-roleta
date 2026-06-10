@@ -1,0 +1,463 @@
+@import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+:root {
+    --bg-main: #000000;
+    --bg-card: #101010;
+    --bg-input: #1a1a1a;
+    --border: #262626;
+    --accent: #4ade80;
+    --accent-glow: rgba(74, 222, 128, 0.25);
+    --text-primary: #ffffff;
+    --text-secondary: #737373;
+    --text-muted: #a3a3a3;
+    --text-dark: #000000;
+    --danger: #ef4444;
+    --success: #4ade80;
+    --sidebar-width: 260px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+/* --- TOAST NOTIFICATION --- */
+.toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--accent);
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    z-index: 999;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transform: translateY(-100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* --- ESTRUTURA PRINCIPAL (APP CONTAINER) --- */
+.phone-frame {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: var(--bg-main);
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+.screen.active {
+    display: flex;
+}
+
+/* --- DESIGN EXCLUSIVO DE LOGIN & REGISTO (CENTRADOS) --- */
+#screen-login, #screen-register {
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: radial-gradient(circle at top right, rgba(204, 255, 0, 0.03), transparent 40%);
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.logo-area {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.logo-area i {
+    font-size: 3rem;
+    color: var(--accent);
+    text-shadow: 0 0 20px var(--accent-glow);
+    margin-bottom: 12px;
+}
+.logo-area h1 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+.logo-area h1 span { color: var(--accent); }
+.logo-area p { color: var(--text-muted); font-size: 0.95rem; margin-top: 6px; }
+
+.form-group { margin-bottom: 24px; }
+.form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.input-wrapper { position: relative; }
+.input-wrapper i {
+    position: absolute; left: 16px; top: 50%;
+    transform: translateY(-50%); color: var(--text-secondary);
+}
+.form-group input {
+    width: 100%; background-color: var(--bg-input);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 16px 16px 48px; color: var(--text-primary);
+    font-size: 1rem; transition: all 0.2s;
+}
+.form-group input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.btn {
+    width: 100%; padding: 16px; border-radius: 12px;
+    font-size: 1rem; font-weight: 700; border: none;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+}
+.btn-primary { background-color: var(--accent); color: var(--text-dark); box-shadow: 0 4px 20px rgba(204, 255, 0, 0.15); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--accent-glow); }
+.btn-primary:active { transform: translateY(0); }
+
+.auth-switch { text-align: center; margin-top: 24px; font-size: 0.9rem; color: var(--text-muted); }
+.auth-switch span { color: var(--accent); cursor: pointer; font-weight: 600; }
+
+/* --- LAYOUT DO DASHBOARD (ESTILO PC COM GRID) --- */
+#screen-dashboard {
+    display: none;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh;
+}
+#screen-dashboard.active { display: flex; }
+
+/* Menu Lateral (PC) */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-card);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 32px 24px;
+}
+.sidebar-logo h2 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+.sidebar-logo span { color: var(--accent); }
+
+.sidebar-nav {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    position: relative;
+}
+/* Indicador verde à esquerda */
+.nav-item.active::before,
+.nav-item:hover::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    border-radius: 0 4px 4px 0;
+    background: var(--accent);
+}
+.nav-item:hover::before {
+    opacity: 0.5;
+}
+.nav-item.active::before {
+    opacity: 1;
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+.nav-item.active, .nav-item:hover {
+    background-color: var(--bg-input);
+    color: var(--accent);
+}
+
+.btn-logout-wrapper {
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+.btn-logout {
+    display: flex; align-items: center; gap: 12px;
+    background: none; border: none; color: #f43f5e;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    width: 100%; padding: 12px 16px;
+}
+
+/* Área Principal do Conteúdo */
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+    background-color: var(--bg-main);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+.user-info p { color: var(--text-muted); font-size: 0.95rem; }
+.user-info h2 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 2rem; font-weight: 700; margin-top: 4px;
+}
+
+/* Grid de Informação */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.score-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #172036 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.points-display {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.points-number {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 4rem; font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 0 24px var(--accent-glow);
+    line-height: 1;
+}
+.points-label {
+    font-size: 0.8rem; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--text-muted);
+    margin-top: 8px; font-weight: 700;
+}
+
+.level-progress { flex-grow: 1; max-width: 300px; margin-left: 40px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-muted); }
+.progress-bar { width: 100%; height: 8px; background-color: var(--bg-input); border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background-color: var(--accent); width: 0%; border-radius: 10px; transition: width 0.5s ease; }
+
+.streak-container {
+    background-color: rgba(251, 146, 60, 0.1);
+    color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.2);
+    padding: 10px 16px; border-radius: 12px;
+    font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px;
+}
+
+.checkin-section { display: flex; align-items: stretch; }
+.btn-checkin {
+    background-color: var(--accent); color: var(--text-dark);
+    border: none; border-radius: 20px; width: 100%;
+    font-family: 'Clash Display', sans-serif; font-size: 1.2rem; font-weight: 700;
+    box-shadow: 0 10px 25px rgba(204, 255, 0, 0.15);
+    cursor: pointer; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; gap: 8px; transition: all 0.2s;
+    padding: 24px;
+}
+.btn-checkin i { font-size: 1.8rem; }
+.btn-checkin:hover { transform: translateY(-3px); box-shadow: 0 12px 30px var(--accent-glow); }
+.btn-checkin:disabled {
+    background-color: var(--bg-input); color: var(--text-secondary);
+    border: 1px solid var(--border); box-shadow: none; cursor: not-allowed; transform: none;
+}
+
+/* Painel de Vantagens */
+.rewards-header { margin-bottom: 20px; }
+.rewards-header h3 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 1.4rem;
+}
+
+.rewards-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* --- MODAL DE RESGATE --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(2, 4, 8, 0.85); backdrop-filter: blur(4px);
+    z-index: 999; display: none; justify-content: center; align-items: center; padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal-content {
+    background-color: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 24px; padding: 40px; text-align: center;
+    width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.modal-icon { font-size: 3.5rem; color: var(--accent); margin-bottom: 20px; }
+.modal-content h3 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 1.6rem; margin-bottom: 12px;
+}
+.modal-content p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+.voucher-code {
+    background-color: var(--bg-input); border: 2px dashed var(--accent);
+    padding: 16px; font-family: 'Clash Display', sans-serif; font-size: 1.8rem;
+    font-weight: 700; letter-spacing: 3px; color: var(--accent);
+    border-radius: 14px; margin-bottom: 24px; cursor: pointer;
+}
+
+/* --- ADAPTAÇÃO TOTAL PARA TABLET E TELEMÓVEL --- */
+@media (max-width: 1024px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .score-card { flex-direction: column; gap: 24px; text-align: center; }
+    .points-display { align-items: center; }
+    .level-progress { margin-left: 0; width: 100%; max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+    #screen-dashboard { flex-direction: column; }
+    .sidebar {
+        width: 100%; height: auto; flex-direction: row;
+        padding: 16px 24px; border-right: none; border-bottom: 1px solid var(--border);
+    }
+    .sidebar-nav, .btn-logout-wrapper { display: none; }
+    .main-content { padding: 24px; }
+    .user-info h2 { font-size: 1.6rem; }
+}
+
+
+/* ==========================================================================
+   FORÇAR ESMAGAMENTO TOTAL (ALTURA FIXA MINÚSCULA)
+   ========================================================================== */
+
+.tip-card, .staff-tip-box, #motivational-tip-container, [id*="-tip-container"] {
+    height: 45px !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 8px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+#motivational-tip {
+    font-size: 0.8rem !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+}
+
+#carteira-vouchers-agrupados > div {
+    height: 45px !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 8px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+#carteira-vouchers-agrupados div[style*="background: rgba(0,0,0,0.2)"],
+#carteira-vouchers-agrupados div[style*="background"] {
+    padding: 2px 6px !important;
+    margin: 0 !important;
+    gap: 4px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.voucher-interactive-badge {
+    padding: 2px 6px !important;
+    font-size: 0.7rem !important;
+    line-height: 1 !important;
+}
+
+/* ==========================================================================
+   GRELHA DE BENEFÍCIOS: QUADRADOS PERFEITOS E SIMÉTRICOS
+   ========================================================================== */
+
+#rewards-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+    gap: 20px !important;
+    padding: 10px 0 !important;
+}
+
+.reward-card {
+    background-color: #101010 !important;
+    border: 1px solid #262626 !important;
+    border-radius: 18px !important;
+    padding: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    text-align: center !important;
+    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s !important;
+}
+.reward-card:hover {
+    border-color: rgba(74, 222, 128, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+.reward-card p {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin: 0;
+    color: var(--text-muted);
+}

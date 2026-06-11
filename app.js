@@ -1,8 +1,4 @@
 // ==========================================================================
-// VHFITNESS APP - SINGLE PRODUCTION FILE (READY)
-// ==========================================================================
-
-// ==========================================================================
 // 0. CONFIGURAÇÕES INICIAIS E PATCHES TENSORFLOW
 // ==========================================================================
 if (typeof tf !== 'undefined' && tf.env) {
@@ -86,6 +82,7 @@ const desafiosPool = [
     { id: 42, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Flexões Diamante para tríceps.', tipo: 'pushup', meta: 15 }
 ];
 
+// Corrigido escopo global desta variável para as tracks da câmara fecharem a 100%
 let streamMedia = null;
 
 // ==========================================================================
@@ -266,6 +263,37 @@ function switchScreen(screenId) {
     document.getElementById(screenId)?.classList.add('active');
 }
 
+// ✅ CORREÇÃO HISTÓRICA: Alterado de 'reward-modal' para 'reward-overlay' para coincidir com o HTML
+function claimReward(title, cost) {
+    if (!currentUser || currentUser.points < cost) return;
+
+    currentUser.points -= cost;
+    
+    const dataExpiracao = new Date();
+    dataExpiracao.setDate(dataExpiracao.getDate() + 30);
+
+    if (!currentUser.vouchers) currentUser.vouchers = [];
+    const novoCodigo = 'VH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    currentUser.vouchers.push({ 
+        item: title, 
+        codigo: novoCodigo, 
+        expira: dataExpiracao.toISOString() 
+    });
+
+    saveUserData();
+
+    const mTitle = document.getElementById('modal-reward-title');
+    const mVouch = document.getElementById('voucher-display');
+    const mModal = document.getElementById('reward-overlay'); // Corrigido
+
+    if (mTitle) mTitle.textContent = title;
+    if (mVouch) mVouch.textContent = novoCodigo;
+    if (mModal) mModal.classList.add('active');
+    
+    initDashboardSession();
+}
+
 function inicializarAutenticacao() {
     document.getElementById('to-register')?.addEventListener('click', () => switchScreen('screen-register'));
     document.getElementById('to-login')?.addEventListener('click', () => switchScreen('screen-login'));
@@ -442,36 +470,6 @@ document.getElementById('rewards-list')?.addEventListener('click', function(e) {
     if (reward) claimReward(reward.title, reward.cost);
 });
 
-function claimReward(title, cost) {
-    if (!currentUser || currentUser.points < cost) return;
-
-    currentUser.points -= cost;
-    
-    const dataExpiracao = new Date();
-    dataExpiracao.setDate(dataExpiracao.getDate() + 30);
-
-    if (!currentUser.vouchers) currentUser.vouchers = [];
-    const novoCodigo = 'VH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    
-    currentUser.vouchers.push({ 
-        item: title, 
-        codigo: novoCodigo, 
-        expira: dataExpiracao.toISOString() 
-    });
-
-    saveUserData();
-
-    const mTitle = document.getElementById('modal-reward-title');
-    const mVouch = document.getElementById('voucher-display');
-    const mModal = document.getElementById('reward-modal');
-
-    if (mTitle) mTitle.textContent = title;
-    if (mVouch) mVouch.textContent = novoCodigo;
-    if (mModal) mModal.classList.add('active');
-    
-    initDashboardSession();
-}
-
 // ==========================================================================
 // 6. CARTEIRA DE VOUCHERS, HISTÓRICO E ABAS
 // ==========================================================================
@@ -575,8 +573,9 @@ function init() {
         if (scrCarteira) scrCarteira.style.display = 'none';
     });
     
+    // ✅ CORREÇÃO: Vinculado ao 'reward-overlay' para fechar o modal corretamente
     document.getElementById('btn-close-modal')?.addEventListener('click', () => {
-        document.getElementById('reward-modal')?.classList.remove('active');
+        document.getElementById('reward-overlay')?.classList.remove('active');
     });
 
     document.getElementById('btn-checkin')?.addEventListener('click', function() {
@@ -658,10 +657,11 @@ document.addEventListener('DOMContentLoaded', init);
                 }
 
                 try {
-                    const streamMedia = await navigator.mediaDevices.getUserMedia({ 
+                    // ✅ CORREÇÃO: Armazenamento da stream na variável de escopo superior reaproveitável
+                    streamMedia = await navigator.mediaDevices.getUserMedia({ 
                         video: { 
-                            width: { ideal: 400 }, 
-                            height: { ideal: 300 }, 
+                            width: { ideal: 257 }, 
+                            height: { ideal: 257 }, 
                             facingMode: "user" 
                         }, 
                         audio: false 
@@ -671,14 +671,18 @@ document.addEventListener('DOMContentLoaded', init);
                     await videoElement.play();
 
                     if (typeof tf !== 'undefined') {
+                        await tf.setBackend('webgl');
                         await tf.ready();
                     }
 
                     let detectorIA;
                     try {
+                        // ✅ CORREÇÃO: Inicialização explícita do MediaPipe Runtime contra quebras em produção móvel
                         detectorIA = await poseDetection.createDetector(
                             poseDetection.SupportedModels.PoseNet, 
                             { 
+                                runtime: 'mediapipe',
+                                solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404',
                                 quantBytes: 1, 
                                 architecture: 'MobileNetV1', 
                                 outputStride: 16, 
@@ -722,7 +726,8 @@ document.addEventListener('DOMContentLoaded', init);
                                 const joelho = (lKnee?.score > (rKnee?.score || 0)) ? lKnee : rKnee;
 
                                 const lElbow = keypoints.find(k => k.name === 'left_elbow');
-                                const rElbow = keypoints.find(k => k.name === 'right_knee'); // Mantido fall-back lógico
+                                // ✅ CORREÇÃO: Apontado para o right_elbow verdadeiro (estava como right_knee)
+                                const rElbow = keypoints.find(k => k.name === 'right_elbow'); 
                                 const cotovelo = (lElbow?.score > (rElbow?.score || 0)) ? lElbow : rElbow;
 
                                 const textoDesafioLower = desafio.texto.toLowerCase();

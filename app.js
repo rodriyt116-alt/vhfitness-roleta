@@ -82,7 +82,6 @@ const desafiosPool = [
     { id: 42, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Flexões Diamante para tríceps.', tipo: 'pushup', meta: 15 }
 ];
 
-// Corrigido escopo global desta variável para as tracks da câmara fecharem a 100%
 let streamMedia = null;
 
 // ==========================================================================
@@ -263,7 +262,6 @@ function switchScreen(screenId) {
     document.getElementById(screenId)?.classList.add('active');
 }
 
-// ✅ CORREÇÃO HISTÓRICA: Alterado de 'reward-modal' para 'reward-overlay' para coincidir com o HTML
 function claimReward(title, cost) {
     if (!currentUser || currentUser.points < cost) return;
 
@@ -285,7 +283,7 @@ function claimReward(title, cost) {
 
     const mTitle = document.getElementById('modal-reward-title');
     const mVouch = document.getElementById('voucher-display');
-    const mModal = document.getElementById('reward-overlay'); // Corrigido
+    const mModal = document.getElementById('reward-overlay');
 
     if (mTitle) mTitle.textContent = title;
     if (mVouch) mVouch.textContent = novoCodigo;
@@ -573,7 +571,6 @@ function init() {
         if (scrCarteira) scrCarteira.style.display = 'none';
     });
     
-    // ✅ CORREÇÃO: Vinculado ao 'reward-overlay' para fechar o modal corretamente
     document.getElementById('btn-close-modal')?.addEventListener('click', () => {
         document.getElementById('reward-overlay')?.classList.remove('active');
     });
@@ -617,7 +614,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA PARA MOBILE (PLAY STORE READY)
+// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA PARA MOBILE & DESKTOP
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -637,7 +634,7 @@ document.addEventListener('DOMContentLoaded', init);
                 
                 const desafio = userLogado.desafioAtivo;
                 btnSubmeter.disabled = true;
-                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibrar detetor móvel...`;
+                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibrar detetor...`;
 
                 let videoElement = document.getElementById('ia-video-feed');
                 if (!videoElement) {
@@ -657,7 +654,6 @@ document.addEventListener('DOMContentLoaded', init);
                 }
 
                 try {
-                    // ✅ CORREÇÃO: Armazenamento da stream na variável de escopo superior reaproveitável
                     streamMedia = await navigator.mediaDevices.getUserMedia({ 
                         video: { 
                             width: { ideal: 257 }, 
@@ -668,6 +664,16 @@ document.addEventListener('DOMContentLoaded', init);
                     });
                     
                     videoElement.srcObject = streamMedia;
+
+                    // ✅ CORREÇÃO CIRÚRGICA: Intercetar metadados para as dimensões nunca virem vazias (Evita Erro NaN)
+                    await new Promise((resolve) => {
+                        videoElement.onloadedmetadata = () => {
+                            videoElement.width = videoElement.videoWidth || 257;
+                            videoElement.height = videoElement.videoHeight || 257;
+                            resolve();
+                        };
+                    });
+                    
                     await videoElement.play();
 
                     if (typeof tf !== 'undefined') {
@@ -676,20 +682,19 @@ document.addEventListener('DOMContentLoaded', init);
                     }
 
                     let detectorIA;
-                    // PROCURA ESTA SECÇÃO NO TEU APP.JS E SUBSTITUI POR ESTA:
-                        try {
-                            // Ajustado para runtime tfjs nativo para ler os scripts do teu HTML sem falhas
-                            detectorIA = await poseDetection.createDetector(
-                                poseDetection.SupportedModels.PoseNet, 
-                                { 
-                                    runtime: 'tfjs', // Alterado de 'mediapipe' para 'tfjs'
-                                    quantBytes: 1, 
-                                    architecture: 'MobileNetV1', 
-                                    outputStride: 16, 
-                                    inputResolution: 257 
-                                }
-                            );
-                        } catch (erroModelo) {
+                    try {
+                        // ✅ CORREÇÃO DE VERSÃO: Configurado para o runtime nativo do HTML 'tfjs' compatível com o PoseNet 2.2.2
+                        detectorIA = await poseDetection.createDetector(
+                            poseDetection.SupportedModels.PoseNet, 
+                            { 
+                                runtime: 'tfjs',
+                                quantBytes: 1, 
+                                architecture: 'MobileNetV1', 
+                                outputStride: 16, 
+                                inputResolution: 257 
+                            }
+                        );
+                    } catch (erroModelo) {
                         console.error("Falha ao instanciar o modelo PoseNet:", erroModelo);
                         alert("O motor de IA falhou ao compilar em segundo plano. Confirma se os scripts CDN estão corretos no teu HTML.");
                         btnSubmeter.disabled = false;
@@ -702,7 +707,7 @@ document.addEventListener('DOMContentLoaded', init);
                     let loopAtivoIA = true;
                     let tempoInicioHold = null;
 
-                    console.log("🤖 IA Inicializada para o desafio:", desafio.texto);
+                    console.log("🤖 IA Inicializada com sucesso. A ler exercício:", desafio.texto);
 
                     async function processarFrame() {
                         if (!loopAtivoIA) return;
@@ -726,13 +731,12 @@ document.addEventListener('DOMContentLoaded', init);
                                 const joelho = (lKnee?.score > (rKnee?.score || 0)) ? lKnee : rKnee;
 
                                 const lElbow = keypoints.find(k => k.name === 'left_elbow');
-                                // ✅ CORREÇÃO: Apontado para o right_elbow verdadeiro (estava como right_knee)
                                 const rElbow = keypoints.find(k => k.name === 'right_elbow'); 
                                 const cotovelo = (lElbow?.score > (rElbow?.score || 0)) ? lElbow : rElbow;
 
                                 const textoDesafioLower = desafio.texto.toLowerCase();
 
-                                // 1. Exercícios de Tempo
+                                // 1. Exercícios de Tempo (Hold)
                                 if (desafio.tipo === 'hold' || textoDesafioLower.includes('prancha') || textoDesafioLower.includes('manter')) {
                                     if (!tempoInicioHold) tempoInicioHold = Date.now();
                                     contadorReps = Math.floor((Date.now() - tempoInicioHold) / 1000);
@@ -820,7 +824,7 @@ document.addEventListener('DOMContentLoaded', init);
                     window.requestAnimationFrame(processarFrame);
 
                 } catch (errCamera) {
-                    alert("Erro crítico: A câmara não responde ou o modelo PoseNet falhou ao carregar em ambiente mobile.");
+                    alert("Erro crítico: A câmara não responde ou o modelo PoseNet falhou ao carregar.");
                     console.error(errCamera);
                     btnSubmeter.disabled = false;
                     btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Tentar Ligar Câmara Novamente`;
@@ -829,4 +833,3 @@ document.addEventListener('DOMContentLoaded', init);
         }
     });
 })();
-

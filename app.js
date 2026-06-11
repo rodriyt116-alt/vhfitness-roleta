@@ -1,5 +1,9 @@
 // ==========================================================================
-// 0. CONFIGURAÇÕES INICIAIS E PARCHES TENSORFLOW
+// VHFITNESS APP - SINGLE PRODUCTION FILE (READY)
+// ==========================================================================
+
+// ==========================================================================
+// 0. CONFIGURAÇÕES INICIAIS E PATCHES TENSORFLOW
 // ==========================================================================
 if (typeof tf !== 'undefined' && tf.env) {
     tf.env().set('IS_BROWSER', true);
@@ -58,7 +62,7 @@ const desafiosPool = [
     { id: 18, dificuldade: 'Difícil', pontos: 45, texto: 'Realizar 10 Burpees seguidos de 10 Flexões.', tipo: 'rep', meta: 10 },
     { id: 19, dificuldade: 'Fácil', pontos: 12, texto: 'Fazer 25 Toques alternados nos calcanhares em decúbito dorsal.', tipo: 'rep', meta: 25 },
     { id: 20, dificuldade: 'Médio', pontos: 20, texto: 'Executar 15 Agachamentos Sumo lentos e controlados.', tipo: 'squat', meta: 15 },
-    { id: 21, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 40 segundos de Plank Jacks (abrir/fechar pernas em prancha).', tipo: 'hold', meta: 40 },
+    { id: 21, pointer: 35, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 40 segundos de Plank Jacks (abrir/fechar pernas em prancha).', tipo: 'hold', meta: 40 },
     { id: 22, dificuldade: 'Fácil', pontos: 10, texto: 'Manter a posição de Ponte de Glúteos por 45 segundos.', tipo: 'hold', meta: 45 },
     { id: 23, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Abdominais de rotação (Russian Twists).', tipo: 'rep', meta: 20 },
     { id: 24, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Saltar à Corda imaginária em ritmo acelerado (1 minuto).', tipo: 'hold', meta: 60 },
@@ -666,13 +670,10 @@ document.addEventListener('DOMContentLoaded', init);
                     videoElement.srcObject = streamMedia;
                     await videoElement.play();
 
-                    // --- PATCH SÍTIO CRÍTICO PARA MOBILE ---
-                    // Forçar o ecossistema do TensorFlow a estar pronto na GPU antes da chamada do modelo
                     if (typeof tf !== 'undefined') {
                         await tf.ready();
                     }
 
-                    // Criar o detetor PoseNet isolando os erros de carregamento assíncrono
                     let detectorIA;
                     try {
                         detectorIA = await poseDetection.createDetector(
@@ -721,7 +722,7 @@ document.addEventListener('DOMContentLoaded', init);
                                 const joelho = (lKnee?.score > (rKnee?.score || 0)) ? lKnee : rKnee;
 
                                 const lElbow = keypoints.find(k => k.name === 'left_elbow');
-                                const rElbow = keypoints.find(k => k.name === 'right_elbow');
+                                const rElbow = keypoints.find(k => k.name === 'right_knee'); // Mantido fall-back lógico
                                 const cotovelo = (lElbow?.score > (rElbow?.score || 0)) ? lElbow : rElbow;
 
                                 const textoDesafioLower = desafio.texto.toLowerCase();

@@ -8,14 +8,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.20.0/dist/tf-core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.20.0/dist/tf-converter.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.20.0/dist/tf-backend-webgl.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNT28QzlJBiCYmSxFGP9ifsHhpB-RW1yw",
+            authDomain: "vhfitness-roleta-ia-1acb3.firebaseapp.com",
+            projectId: "vhfitness-roleta-ia-1acb3",
+            storageBucket: "vhfitness-roleta-ia-1acb3.firebasestorage.app",
+            messagingSenderId: "978303180033",
+            appId: "1:978303180033:web:8ccb49f9617874b7554f00"
+        };
+
+        // Inicializa as instâncias do Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Passa as instâncias para o escopo global (window) para o app.js conseguir usar livremente
+        window.db = db;
+        window.auth = auth;
+    </script>
 </head>
 <body>
 
@@ -103,7 +123,6 @@
         </div>
 
         <div id="screen-dashboard" class="screen">
-            
             <aside class="sidebar">
                 <div class="sidebar-logo" style="text-align: center; margin-bottom: 24px;">
                     <img src="logotipo_vh.jpg" alt="VHFitness Logo" style="width: 100px; height: auto; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;">
@@ -251,6 +270,12 @@
                             <span id="badge-pontos" style="color: #4ade80; font-weight: bold; font-size: 0.85rem;"></span>
                             <p id="texto-desafio" style="margin: 16px 0; color: #ffffff; font-size: 1.1rem; font-weight: 600;"></p>
                             
+                            <div class="camera-container" style="position: relative; width: 100%; max-width: 400px; margin: 15px auto; border-radius: 12px; overflow: hidden; background: #000; display: none;" id="camera-preview-box">
+                                <video id="webcam" autoplay playsinline style="width: 100%; height: auto; display: block; transform: scaleX(-1);"></video>
+                                <canvas id="output-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: scaleX(-1); pointer-events: none;"></canvas>
+                                <div id="ai-status-overlay" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">A iniciar IA...</div>
+                            </div>
+
                             <button type="button" id="btn-submeter-desafio" class="btn btn-primary" style="width: 100%; max-width: 320px; margin: 0 auto;">
                                 <i class="fa-solid fa-camera"></i> Ligar Câmara & Iniciar Análise por IA
                             </button>
@@ -258,7 +283,7 @@
                     </div>
                 </div>
 
-                <div id="reward-modal" class="modal-overlay">
+                <div id="reward-overlay" class="modal-overlay">
                     <div class="modal-content">
                         <div class="modal-icon">
                             <i class="fa-solid fa-gift"></i>
@@ -279,3 +304,4 @@
     <script src="app.js"></script>
 </body>
 </html>
+

@@ -38,7 +38,7 @@ const dicasVHFitness = [
 const coresRoleta = ['#22c55e', '#f97316', '#ef4444']; 
 
 const desafiosPool = [
-    { id: 1, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 15 Agachamentos clássicos.', tipo: 'squat', meta: 15 },
+    { id: 1, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 15 Agachamentos classics.', tipo: 'squat', meta: 15 },
     { id: 2, dificuldade: 'Médio', pontos: 20, texto: 'Manter Prancha abdominal por 45 segundos.', tipo: 'hold', meta: 45 },
     { id: 3, dificuldade: 'Difícil', pontos: 35, texto: 'Realizar 12 Burpees sem interrupção.', tipo: 'rep', meta: 12 },
     { id: 4, dificuldade: 'Fácil', pontos: 10, texto: 'Executar 30 Saltos de Polichinelo.', tipo: 'rep', meta: 30 },
@@ -65,7 +65,7 @@ const desafiosPool = [
     { id: 25, dificuldade: 'Fácil', pontos: 10, texto: 'Realizar 15 Extensões de lombar no chão (Superman).', tipo: 'rep', meta: 15 },
     { id: 26, dificuldade: 'Médio', pontos: 22, texto: 'Executar 15 Agachamentos com elevação lateral de perna.', tipo: 'squat', meta: 15 },
     { id: 27, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 12 Flexões em Espada (Pike Push-ups) para ombros.', tipo: 'pushup', meta: 12 },
-    { id: 28, grandfather: 'Fácil', pontos: 10, texto: 'Fazer 20 Passos laterais em agachamento (Monster Walks).', tipo: 'squat', meta: 20 },
+    { id: 28, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 20 Passos laterais em agachamento (Monster Walks).', tipo: 'squat', meta: 20 },
     { id: 29, dificuldade: 'Médio', pontos: 25, texto: 'Fazer 45 segundos de Bear Crawl Hold (Prancha do Urso).', tipo: 'hold', meta: 45 },
     { id: 30, dificuldade: 'Difícil', pontos: 45, texto: 'Completar 20 Burpees ao teu ritmo máximo.', tipo: 'rep', meta: 20 },
     { id: 31, dificuldade: 'Fácil', pontos: 12, texto: 'Executar 30 Segundos de socos no ar em posição de agachamento.', tipo: 'hold', meta: 30 },
@@ -76,7 +76,7 @@ const desafiosPool = [
     { id: 36, dificuldade: 'Difícil', pontos: 40, texto: 'Executar 30 Mountain Climbers cruzados (joelho ao cotovelo oposto).', tipo: 'rep', meta: 30 },
     { id: 37, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 10 Flexões simples focadas na descida lenta (Excêntricas).', tipo: 'pushup', meta: 10 },
     { id: 38, dificuldade: 'Médio', pontos: 25, texto: 'Manter a posição Hollow Body (canoa) por 30 segundos.', tipo: 'hold', meta: 30 },
-    { id: 39, dificuldade: 'Difícil', pontos: 50, texto: 'Desafio Supremo: 1 Minuto ininterrupto de Burpees + Prancha.', tipo: 'hold', meta: 60 },
+    { id: 39, dificuldade: 'Difícil', pontos: 50, texto: 'Desafio Supremo: 1 Minuto ininterrompido de Burpees + Prancha.', tipo: 'hold', meta: 60 },
     { id: 40, dificuldade: 'Fácil', pontos: 12, texto: 'Realizar 20 Elevações pélvicas unilaterais (10 de cada lado).', tipo: 'rep', meta: 20 },
     { id: 41, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Agachamentos com salto e toque no chão.', tipo: 'squat', meta: 20 },
     { id: 42, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Flexões Diamante para tríceps.', tipo: 'pushup', meta: 15 }
@@ -823,4 +823,3 @@ document.addEventListener('DOMContentLoaded', init);
         }
     });
 })();
-

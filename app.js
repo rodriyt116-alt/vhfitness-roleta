@@ -2,6 +2,11 @@
 // VHFITNESS APP - SINGLE PRODUCTION FILE (READY)
 // ==========================================================================
 
+    // Dentro do teu app.js, a inicialização deve ser algo parecido com isto:
+    const detector = await poseDetection.createDetector(
+    poseDetection.SupportedModels.PoseNet, 
+    { runtime: 'mediapipe', modelType: 'full' } // ou runtime: 'tfjs'
+);
 // ==========================================================================
 // 0. CONFIGURAÇÕES INICIAIS E PATCHES TENSORFLOW
 // ==========================================================================

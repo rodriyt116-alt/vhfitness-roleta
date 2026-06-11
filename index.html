@@ -17,28 +17,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js" defer></script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDNT28QzlJBiCYmSxFGP9ifsHhpB-RW1yw",
-            authDomain: "vhfitness-roleta-ia-1acb3.firebaseapp.com",
-            projectId: "vhfitness-roleta-ia-1acb3",
-            storageBucket: "vhfitness-roleta-ia-1acb3.firebasestorage.app",
-            messagingSenderId: "978303180033",
-            appId: "1:978303180033:web:8ccb49f9617874b7554f00"
-        };
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDNT28QzlJBiCYmSxFGP9ifsHhpB-RW1yw",
+        authDomain: "vhfitness-roleta-ia-1acb3.firebaseapp.com",
+        projectId: "vhfitness-roleta-ia-1acb3",
+        storageBucket: "vhfitness-roleta-ia-1acb3.firebasestorage.app",
+        messagingSenderId: "978303180033",
+        appId: "1:978303180033:web:8ccb49f9617874b7554f00"
+    };
 
-        // Inicializa as instâncias do Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        // Passa as instâncias para o escopo global (window) para o app.js conseguir usar livremente
-        window.db = db;
-        window.auth = auth;
-    </script>
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+</script>
 </head>
 <body>
 

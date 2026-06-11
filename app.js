@@ -77,7 +77,7 @@ const desafiosPool = [
     { id: 37, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 10 Flexões simples focadas na descida lenta (Excêntricas).', tipo: 'pushup', meta: 10 },
     { id: 38, dificuldade: 'Médio', pontos: 25, texto: 'Manter a posição Hollow Body (canoa) por 30 segundos.', tipo: 'hold', meta: 30 },
     { id: 39, dificuldade: 'Difícil', pontos: 50, texto: 'Desafio Supremo: 1 Minuto ininterrompido de Burpees + Prancha.', tipo: 'hold', meta: 60 },
-    { id: 40, difficulty: 'Fácil', pontos: 12, texto: 'Realizar 20 Elevações pélvicas unilaterais (10 de cada lado).', tipo: 'rep', meta: 20 },
+    { id: 40, dificuldade: 'Fácil', pontos: 12, texto: 'Realizar 20 Elevações pélvicas unilaterais (10 de cada lado).', tipo: 'rep', meta: 20 },
     { id: 41, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Agachamentos com salto e toque no chão.', tipo: 'squat', meta: 20 },
     { id: 42, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Flexões Diamante para tríceps.', tipo: 'pushup', meta: 15 }
 ];
@@ -614,7 +614,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA UTILIZANDO O ELEMENTO DO HTML
+// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA (CORREÇÃO DE ERRO HEIGHT OF NAN)
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -636,18 +636,16 @@ document.addEventListener('DOMContentLoaded', init);
                 btnSubmeter.disabled = true;
                 btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibrar detetor...`;
 
-                // ✅ CORREÇÃO DEFINITIVA: Vinculação direta ao elemento de vídeo real do HTML
                 let videoElement = document.getElementById('webcam');
                 let cameraBox = document.getElementById('camera-preview-box');
                 
                 if (!videoElement) {
-                    alert("Erro: Elemento de vídeo '#webcam' não foi encontrado no teu ficheiro HTML.");
+                    alert("Erro: Elemento de vídeo '#webcam' não foi encontrado no teu HTML.");
                     btnSubmeter.disabled = false;
                     btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Iniciar Análise`;
                     return;
                 }
 
-                // Força o contentor da câmara estruturado a aparecer
                 if (cameraBox) cameraBox.style.display = 'block';
 
                 try {
@@ -661,22 +659,6 @@ document.addEventListener('DOMContentLoaded', init);
                     });
                     
                     videoElement.srcObject = streamMedia;
-
-                    // ✅ AJUSTE DE CONTINGÊNCIA ANTI-NAN: Força resolução absoluta garantida antes de invocar a IA
-                    await new Promise((resolve) => {
-                        videoElement.onloadedmetadata = () => {
-                            videoElement.width = videoElement.videoWidth || 257;
-                            videoElement.height = videoElement.videoHeight || 257;
-                            resolve();
-                        };
-                        // Proteção extra se o hardware do telemóvel atrasar a resposta dos metadados
-                        setTimeout(() => {
-                            videoElement.width = 257;
-                            videoElement.height = 257;
-                            resolve();
-                        }, 450);
-                    });
-                    
                     await videoElement.play();
 
                     if (typeof tf !== 'undefined') {
@@ -698,7 +680,7 @@ document.addEventListener('DOMContentLoaded', init);
                         );
                     } catch (erroModelo) {
                         console.error("Falha ao instanciar o modelo PoseNet:", erroModelo);
-                        alert("O motor de IA falhou ao compilar em segundo plano. Confirma se os scripts CDN estão corretos no teu HTML.");
+                        alert("O motor de IA falhou ao compilar em segundo plano.");
                         btnSubmeter.disabled = false;
                         btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Voltar a Tentar`;
                         return;
@@ -709,13 +691,19 @@ document.addEventListener('DOMContentLoaded', init);
                     let loopAtivoIA = true;
                     let tempoInicioHold = null;
 
-                    console.log("🤖 IA Inicializada com sucesso. A ler exercício:", desafio.texto);
+                    console.log("🤖 IA Inicializada. Lendo exercício:", desafio.texto);
 
                     async function processarFrame() {
                         if (!loopAtivoIA) return;
 
                         try {
-                            const poses = await detectorIA.estimatePoses(videoElement, {maxPoses: 1, flipHorizontal: false});
+                            // ✅ SOLUÇÃO SUPREMA ANTI-NAN: Injetar explicitamente o mapeamento de tamanho no estimador do PoseNet
+                            const poses = await detectorIA.estimatePoses(videoElement, {
+                                maxPoses: 1, 
+                                flipHorizontal: false,
+                                width: 257,
+                                height: 257
+                            });
                             
                             if (poses && poses.length > 0 && poses[0].keypoints) {
                                 const keypoints = poses[0].keypoints;
@@ -753,7 +741,6 @@ document.addEventListener('DOMContentLoaded', init);
                                         if (anca.y < 160 && emMovimento) { 
                                             contadorReps++; 
                                             emMovimento = false; 
-                                            console.log("Repetição Contada! Total:", contadorReps);
                                         }
                                     }
                                 }
@@ -828,7 +815,7 @@ document.addEventListener('DOMContentLoaded', init);
                     alert("Erro crítico: A câmara não responde ou o modelo PoseNet falhou ao carregar.");
                     console.error(errCamera);
                     btnSubmeter.disabled = false;
-                    btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Tentar Ligar Câmara Novamente`;
+                    btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Tentar Novamente`;
                 }
             });
         }

@@ -614,7 +614,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA (CORREÇÃO DE ERRO HEIGHT OF NAN)
+// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA (CORREÇÃO DE INSTANCIAÇÃO DO MODELO)
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -668,19 +668,24 @@ document.addEventListener('DOMContentLoaded', init);
 
                     let detectorIA;
                     try {
+                        // ✅ SOLUÇÃO SUPREMA PARA RESOLVER O ERRO DE INSTANCIAÇÃO:
+                        // Mudámos a propriedade do PoseNet para 'modelConfig' estruturada. Isto diz ao motor
+                        // do PoseNet exatamente qual é a resolução de entrada esperada sem forçar cálculos internos inválidos.
                         detectorIA = await poseDetection.createDetector(
                             poseDetection.SupportedModels.PoseNet, 
                             { 
                                 runtime: 'tfjs',
-                                quantBytes: 1, 
-                                architecture: 'MobileNetV1', 
-                                outputStride: 16, 
-                                inputResolution: 257 
+                                modelConfig: {
+                                    architecture: 'MobileNetV1', 
+                                    outputStride: 16, 
+                                    inputResolution: { width: 257, height: 257 },
+                                    multiplier: 0.75
+                                }
                             }
                         );
                     } catch (erroModelo) {
                         console.error("Falha ao instanciar o modelo PoseNet:", erroModelo);
-                        alert("O motor de IA falhou ao compilar em segundo plano.");
+                        alert("O motor de IA falhou ao compilar em segundo plano. Detalhes na consola do programador.");
                         btnSubmeter.disabled = false;
                         btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Voltar a Tentar`;
                         return;
@@ -697,12 +702,9 @@ document.addEventListener('DOMContentLoaded', init);
                         if (!loopAtivoIA) return;
 
                         try {
-                            // ✅ SOLUÇÃO SUPREMA ANTI-NAN: Injetar explicitamente o mapeamento de tamanho no estimador do PoseNet
                             const poses = await detectorIA.estimatePoses(videoElement, {
                                 maxPoses: 1, 
-                                flipHorizontal: false,
-                                width: 257,
-                                height: 257
+                                flipHorizontal: false
                             });
                             
                             if (poses && poses.length > 0 && poses[0].keypoints) {

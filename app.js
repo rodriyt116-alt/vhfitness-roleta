@@ -676,20 +676,20 @@ document.addEventListener('DOMContentLoaded', init);
                     }
 
                     let detectorIA;
-                    try {
-                        // ✅ CORREÇÃO: Inicialização explícita do MediaPipe Runtime contra quebras em produção móvel
-                        detectorIA = await poseDetection.createDetector(
-                            poseDetection.SupportedModels.PoseNet, 
-                            { 
-                                runtime: 'mediapipe',
-                                solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404',
-                                quantBytes: 1, 
-                                architecture: 'MobileNetV1', 
-                                outputStride: 16, 
-                                inputResolution: 257 
-                            }
-                        );
-                    } catch (erroModelo) {
+                    // PROCURA ESTA SECÇÃO NO TEU APP.JS E SUBSTITUI POR ESTA:
+                        try {
+                            // Ajustado para runtime tfjs nativo para ler os scripts do teu HTML sem falhas
+                            detectorIA = await poseDetection.createDetector(
+                                poseDetection.SupportedModels.PoseNet, 
+                                { 
+                                    runtime: 'tfjs', // Alterado de 'mediapipe' para 'tfjs'
+                                    quantBytes: 1, 
+                                    architecture: 'MobileNetV1', 
+                                    outputStride: 16, 
+                                    inputResolution: 257 
+                                }
+                            );
+                        } catch (erroModelo) {
                         console.error("Falha ao instanciar o modelo PoseNet:", erroModelo);
                         alert("O motor de IA falhou ao compilar em segundo plano. Confirma se os scripts CDN estão corretos no teu HTML.");
                         btnSubmeter.disabled = false;
@@ -829,3 +829,4 @@ document.addEventListener('DOMContentLoaded', init);
         }
     });
 })();
+

@@ -737,6 +737,9 @@ document.addEventListener('DOMContentLoaded', init);
                     videoElement.srcObject = streamMedia;
                     await videoElement.play();
 
+                    btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A carregar cérebro da IA...`;
+
+                    // Criar o detetor
                     detectorIA = await poseDetection.createDetector(
                         poseDetection.SupportedModels.PoseNet, { runtime: 'tfjs' }
                     );
@@ -745,12 +748,16 @@ document.addEventListener('DOMContentLoaded', init);
                     emMovimento = false;
                     tempoAcumuladoHold = 0;
                     ultimoTimestampHold = null;
-                    loopAtivoIA = true;
 
-                    btnSubmeter.innerHTML = `<i class="fa-solid fa-running fa-spin"></i> Análise Ativa por IA...`;
-                    window.requestAnimationFrame(processarFramesIA);
+                    // PEQUENA PAUSA CRÍTICA: Dá 500ms para o stream de vídeo estabilizar os píxeis antes do loop começar
+                    setTimeout(() => {
+                        loopAtivoIA = true;
+                        btnSubmeter.innerHTML = `<i class="fa-solid fa-running fa-spin"></i> Análise Ativa por IA...`;
+                        window.requestAnimationFrame(processarFramesIA);
+                    }, 500);
 
                 } catch (errCamera) {
+                    console.error(errCamera);
                     alert("Erro ao aceder à câmara.");
                     btnSubmeter.disabled = false;
                 }

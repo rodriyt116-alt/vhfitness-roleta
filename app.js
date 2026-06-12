@@ -42,7 +42,7 @@ const desafiosPool = [
     { id: 2, dificuldade: 'Médio', pontos: 20, texto: 'Manter Prancha abdominal por 45 segundos.', tipo: 'hold', meta: 45 },
     { id: 3, dificuldade: 'Difícil', pontos: 35, texto: 'Realizar 12 Burpees sem interrupção.', tipo: 'rep', meta: 12 },
     { id: 4, dificuldade: 'Fácil', pontos: 10, texto: 'Executar 30 Saltos de Polichinelo.', tipo: 'rep', meta: 30 },
-    { id: 5, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Flexões de braços (joelhos no chão permitidos).', tipo: 'pushup', meta: 20 },
+    { id: 5, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Flexões de braços.', tipo: 'pushup', meta: 20 },
     { id: 6, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 24 Lunges com salto alternado.', tipo: 'rep', meta: 24 },
     { id: 7, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer Corrida Estática (High Knees) durante 30 segundos.', tipo: 'hold', meta: 30 },
     { id: 8, dificuldade: 'Médio', pontos: 20, texto: 'Manter a posição de Agachamento Isométrico na parede por 45s.', tipo: 'hold', meta: 45 },
@@ -56,28 +56,28 @@ const desafiosPool = [
     { id: 16, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 20 Lunges alternados (10 para cada perna).', tipo: 'rep', meta: 20 },
     { id: 17, dificuldade: 'Médio', pontos: 25, texto: 'Manter Prancha Lateral por 30 segundos de cada lado.', tipo: 'hold', meta: 30 },
     { id: 18, dificuldade: 'Difícil', pontos: 45, texto: 'Realizar 10 Burpees seguidos de 10 Flexões.', tipo: 'rep', meta: 10 },
-    { id: 19, dificuldade: 'Fácil', pontos: 12, texto: 'Fazer 25 Toques alternados nos calcanhares em decúbito dorsal.', tipo: 'rep', meta: 25 },
+    { id: 19, dificuldade: 'Fácil', pontos: 12, texto: 'Fazer 25 Toques alternados nos calcanhares.', tipo: 'rep', meta: 25 },
     { id: 20, dificuldade: 'Médio', pontos: 20, texto: 'Executar 15 Agachamentos Sumo lentos e controlados.', tipo: 'squat', meta: 15 },
-    { id: 21, pointer: 35, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 40 segundos de Plank Jacks (abrir/fechar pernas em prancha).', tipo: 'hold', meta: 40 },
+    { id: 21, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 40 segundos de Plank Jacks.', tipo: 'hold', meta: 40 },
     { id: 22, dificuldade: 'Fácil', pontos: 10, texto: 'Manter a posição de Ponte de Glúteos por 45 segundos.', tipo: 'hold', meta: 45 },
     { id: 23, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Abdominais de rotação (Russian Twists).', tipo: 'rep', meta: 20 },
-    { id: 24, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Saltar à Corda imaginária em ritmo acelerado (1 minuto).', tipo: 'hold', meta: 60 },
+    { id: 24, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Saltar à Corda imaginária (1 minuto).', tipo: 'hold', meta: 60 },
     { id: 25, dificuldade: 'Fácil', pontos: 10, texto: 'Realizar 15 Extensões de lombar no chão (Superman).', tipo: 'rep', meta: 15 },
     { id: 26, dificuldade: 'Médio', pontos: 22, texto: 'Executar 15 Agachamentos com elevação lateral de perna.', tipo: 'squat', meta: 15 },
-    { id: 27, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 12 Flexões em Espada (Pike Push-ups) para ombros.', tipo: 'pushup', meta: 12 },
-    { id: 28, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 20 Passos laterais em agachamento (Monster Walks).', tipo: 'squat', meta: 20 },
-    { id: 29, dificuldade: 'Médio', pontos: 25, texto: 'Fazer 45 segundos de Bear Crawl Hold (Prancha do Urso).', tipo: 'hold', meta: 45 },
+    { id: 27, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 12 Flexões em Espada (Pike Push-ups).', tipo: 'pushup', meta: 12 },
+    { id: 28, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 20 Passos laterais em agachamento.', tipo: 'squat', meta: 20 },
+    { id: 29, dificuldade: 'Médio', pontos: 25, texto: 'Fazer 45 segundos de Bear Crawl Hold.', tipo: 'hold', meta: 45 },
     { id: 30, dificuldade: 'Difícil', pontos: 45, texto: 'Completar 20 Burpees ao teu ritmo máximo.', tipo: 'rep', meta: 20 },
-    { id: 31, dificuldade: 'Fácil', pontos: 12, texto: 'Executar 30 Segundos de socos no ar em posição de agachamento.', tipo: 'hold', meta: 30 },
+    { id: 31, dificuldade: 'Fácil', pontos: 12, texto: 'Executar 30 Segundos de socos no ar em agachamento.', tipo: 'hold', meta: 30 },
     { id: 32, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Abdominais Tesoura horizontais.', tipo: 'rep', meta: 20 },
-    { id: 33, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 15 Agachamentos Pistola assistidos (uma perna de cada vez).', tipo: 'squat', meta: 15 },
-    { id: 34, dificuldade: 'Fácil', pontos: 10, texto: 'Executar 15 Rotações de braços completas em posição de prancha.', tipo: 'hold', meta: 15 },
+    { id: 33, dificuldade: 'Difícil', pontos: 35, texto: 'Fazer 15 Agachamentos Pistola assistidos.', tipo: 'squat', meta: 15 },
+    { id: 34, dificuldade: 'Fácil', pontos: 10, texto: 'Executar 15 Rotações de braços em prancha.', tipo: 'hold', meta: 15 },
     { id: 35, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Lunges reversos alternados.', tipo: 'rep', meta: 20 },
-    { id: 36, dificuldade: 'Difícil', pontos: 40, texto: 'Executar 30 Mountain Climbers cruzados (joelho ao cotovelo oposto).', tipo: 'rep', meta: 30 },
-    { id: 37, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 10 Flexões simples focadas na descida lenta (Excêntricas).', tipo: 'pushup', meta: 10 },
-    { id: 38, dificuldade: 'Médio', pontos: 25, texto: 'Manter a posição Hollow Body (canoa) por 30 segundos.', tipo: 'hold', meta: 30 },
-    { id: 39, dificuldade: 'Difícil', pontos: 50, texto: 'Desafio Supremo: 1 Minuto ininterrompido de Burpees + Prancha.', tipo: 'hold', meta: 60 },
-    { id: 40, dificuldade: 'Fácil', pontos: 12, texto: 'Realizar 20 Elevações pélvicas unilaterais (10 de cada lado).', tipo: 'rep', meta: 20 },
+    { id: 36, dificuldade: 'Difícil', pontos: 40, texto: 'Executar 30 Mountain Climbers cruzados.', tipo: 'rep', meta: 30 },
+    { id: 37, dificuldade: 'Fácil', pontos: 10, texto: 'Fazer 10 Flexões simples focadas na descida lenta.', tipo: 'pushup', meta: 10 },
+    { id: 38, dificuldade: 'Médio', pontos: 25, texto: 'Manter a posição Hollow Body por 30 segundos.', tipo: 'hold', meta: 30 },
+    { id: 39, dificuldade: 'Difícil', pontos: 50, texto: 'Desafio Supremo: 1 Minuto ininterrompido de Burpees.', tipo: 'hold', meta: 60 },
+    { id: 40, dificuldade: 'Fácil', pontos: 12, texto: 'Realizar 20 Elevações pélvicas unilaterais.', tipo: 'rep', meta: 20 },
     { id: 41, dificuldade: 'Médio', pontos: 20, texto: 'Fazer 20 Agachamentos com salto e toque no chão.', tipo: 'squat', meta: 20 },
     { id: 42, dificuldade: 'Difícil', pontos: 40, texto: 'Fazer 15 Flexões Diamante para tríceps.', tipo: 'pushup', meta: 15 }
 ];
@@ -614,7 +614,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA (CORREÇÃO DE CHAMADA POSETNET S/ ARGS INVÁLIDOS)
+// 8. CORREÇÃO, ANÁLISE DE POSTURA (QUALITY CHECK) E BOTÃO CONCLUIR MANUAL
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -646,15 +646,57 @@ document.addEventListener('DOMContentLoaded', init);
                     return;
                 }
 
-                if (cameraBox) cameraBox.style.display = 'block';
+                // Injectar dinamicamente a UI profissional (Barra de Progresso, Feedback e Botão Concluir)
+                if (cameraBox) {
+                    cameraBox.style.display = 'block';
+                    
+                    let interfaceProfissional = document.getElementById('ia-interface-profissional');
+                    if (!interfaceProfissional) {
+                        interfaceProfissional = document.createElement('div');
+                        interfaceProfissional.id = 'ia-interface-profissional';
+                        interfaceProfissional.style.cssText = `
+                            margin-top: 15px; background: #1a1a1a; padding: 16px; 
+                            border-radius: 14px; border: 1px solid #2e2e2e; color: #ffffff;
+                        `;
+                        cameraBox.appendChild(interfaceProfissional);
+                    }
+                    
+                    interfaceProfissional.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span id="ia-feedback-status" style="font-weight: 700; color: #f59e0b;">🟡 A Aguardar Posicionamento...</span>
+                            <span id="ia-counter-digital" style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #4ade80;">0 / ${desafio.meta}</span>
+                        </div>
+                        <div style="width: 100%; bg: #333; background: #2a2a2a; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
+                            <div id="ia-progress-bar" style="width: 0%; background: #4ade80; height: 100%; transition: width 0.2s;"></div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="btn-concluir-manual" style="
+                                flex: 1; background: #2563eb; color: #ffffff; border: none; 
+                                padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;
+                            "><i class="fa-solid fa-circle-check"></i> Concluir Manual</button>
+                            <button id="btn-cancelar-ia" style="
+                                background: #ef4444; color: #ffffff; border: none; 
+                                padding: 12px 18px; border-radius: 10px; font-weight: 600; cursor: pointer;
+                            "><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    `;
+
+                    // Evento para Concluir Manualmente
+                    document.getElementById('btn-concluir-manual').addEventListener('click', () => {
+                        finalizarDesafioSucesso(userLogado, desafio, "Concluído Manualmente pelo Utilizador");
+                    });
+
+                    // Evento para Cancelar/Fechar Câmara
+                    document.getElementById('btn-cancelar-ia').addEventListener('click', () => {
+                        loopAtivoIA = false;
+                        if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
+                        location.reload();
+                    });
+                }
 
                 try {
                     streamMedia = await navigator.mediaDevices.getUserMedia({ 
-                        video: { 
-                            width: { ideal: 257 }, 
-                            height: { ideal: 257 }, 
-                            facingMode: "user" 
-                        }, 
+                        video: { width: { ideal: 257 }, height: { ideal: 257 }, facingMode: "user" }, 
                         audio: false 
                     });
                     
@@ -666,39 +708,27 @@ document.addEventListener('DOMContentLoaded', init);
                         await tf.ready();
                     }
 
-                    let detectorIA;
-                    try {
-                        // ✅ SOLUÇÃO DEFINITIVA: Removidos parâmetros de config incompatíveis com o PoseNet moderno.
-                        // O detetor agora instancia de forma limpa sem tentar ler o outputStride de um objeto mal mapeado.
-                        detectorIA = await poseDetection.createDetector(
-                            poseDetection.SupportedModels.PoseNet, 
-                            { 
-                                runtime: 'tfjs'
-                            }
-                        );
-                    } catch (erroModelo) {
-                        console.error("Falha ao instanciar o modelo PoseNet:", erroModelo);
-                        alert("O motor de IA falhou ao compilar em segundo plano. Verifique o console.");
-                        btnSubmeter.disabled = false;
-                        btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Voltar a Tentar`;
-                        return;
-                    }
+                    let detectorIA = await poseDetection.createDetector(
+                        poseDetection.SupportedModels.PoseNet, { runtime: 'tfjs' }
+                    );
 
                     let contadorReps = 0;
                     let emMovimento = false;
                     let loopAtivoIA = true;
-                    let tempoInicioHold = null;
+                    let tempoAcumuladoHold = 0; 
+                    let ultimoTimestampHold = null;
 
-                    console.log("🤖 IA Inicializada com sucesso. Lendo exercício:", desafio.texto);
+                    console.log("🤖 Motor de IA Ligado.");
 
                     async function processarFrame() {
                         if (!loopAtivoIA) return;
 
+                        let feedbackTexto = "🟢 Postura Correta";
+                        let feedbackCor = "#4ade80";
+                        let posturaCorreta = true;
+
                         try {
-                            const poses = await detectorIA.estimatePoses(videoElement, {
-                                maxPoses: 1, 
-                                flipHorizontal: false
-                            });
+                            const poses = await detectorIA.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
                             
                             if (poses && poses.length > 0 && poses[0].keypoints) {
                                 const keypoints = poses[0].keypoints;
@@ -721,50 +751,104 @@ document.addEventListener('DOMContentLoaded', init);
 
                                 const textoDesafioLower = desafio.texto.toLowerCase();
 
-                                // 1. Exercícios de Tempo (Hold)
+                                // --- LOGICA 1: EXERCÍCIOS DE TEMPO (HOLD / PRANCHAS) ---
                                 if (desafio.tipo === 'hold' || textoDesafioLower.includes('prancha') || textoDesafioLower.includes('manter')) {
-                                    if (!tempoInicioHold) tempoInicioHold = Date.now();
-                                    contadorReps = Math.floor((Date.now() - tempoInicioHold) / 1000);
+                                    // Verificação de Qualidade da Prancha: ombro e bacia devem estar minimamente alinhados na horizontal
+                                    if (ombro && anca && ombro.score > 0.4 && anca.score > 0.4) {
+                                        let diferencaAlinhamento = Math.abs(ombro.y - anca.y);
+                                        if (diferencaAlinhamento > 55) { 
+                                            posturaCorreta = false;
+                                            feedbackTexto = "⚠️ Alinha a Bacia!";
+                                            feedbackCor = "#ef4444";
+                                        }
+                                    } else {
+                                        posturaCorreta = false;
+                                        feedbackTexto = "⚠️ Afasta-te para focar o corpo";
+                                        feedbackCor = "#f59e0b";
+                                    }
+
+                                    if (posturaCorreta) {
+                                        let agora = Date.now();
+                                        if (ultimoTimestampHold) {
+                                            tempoAcumuladoHold += (agora - ultimoTimestampHold) / 1000;
+                                        }
+                                        ultimoTimestampHold = agora;
+                                        contadorReps = Math.floor(tempoAcumuladoHold);
+                                    } else {
+                                        // Se estiver a fazer mal, pausa o tempo limpando o timestamp de referência
+                                        ultimoTimestampHold = null;
+                                    }
                                 }
                                 
-                                // 2. Burpees, Polichinelos e Saltos
-                                else if (textoDesafioLower.includes('burpee') || textoDesafioLower.includes('salto') || textoDesafioLower.includes('polichinelo') || desafio.tipo === 'rep') {
+                                // --- LOGICA 2: FLEXÕES (PUSHUPS) QUALITY CHECK ---
+                                else if (desafio.tipo === 'pushup' || textoDesafioLower.includes('flex')) {
+                                    if (ombro && cotovelo && anca && ombro.score > 0.4 && cotovelo.score > 0.4) {
+                                        let distVerticalDescida = Math.abs(ombro.y - cotovelo.y);
+                                        let quebraBacia = anca.y - ombro.y;
+
+                                        if (quebraBacia < -15) {
+                                            feedbackTexto = "⚠️ Alinha as costas!";
+                                            feedbackCor = "#ef4444";
+                                            emMovimento = false; // Bloqueia repetição errada
+                                        } else {
+                                            if (distVerticalDescida < 30 && !emMovimento) {
+                                                emMovimento = true; 
+                                            }
+                                            if (distVerticalDescida > 60 && emMovimento) {
+                                                contadorReps++;
+                                                emMovimento = false;
+                                            }
+                                            if (emMovimento) {
+                                                feedbackTexto = "💪 Boa amplitude! Sobe...";
+                                                feedbackCor = "#3b82f6";
+                                            }
+                                        }
+                                    } else {
+                                        feedbackTexto = "⚠️ Enquadra o perfil na câmara";
+                                        feedbackCor = "#f59e0b";
+                                    }
+                                }
+                                
+                                // --- LOGICA 3: AGACHAMENTOS (SQUATS) ---
+                                else if (desafio.tipo === 'squat' || textoDesafioLower.includes('agach')) {
+                                    if (anca && joelho && anca.score > 0.4 && joelho.score > 0.4) {
+                                        if (anca.y >= (joelho.y - 10) && !emMovimento) emMovimento = true;
+                                        if (anca.y < (joelho.y - 45) && emMovimento) {
+                                            contadorReps++;
+                                            emMovimento = false;
+                                        }
+                                        if (emMovimento) {
+                                            feedbackTexto = "🔥 Agachamento profundo! Sobe...";
+                                            feedbackCor = "#3b82f6";
+                                        }
+                                    }
+                                }
+                                
+                                // --- LOGICA 4: EXERCÍCIOS GERAIS DE REPETIÇÃO ---
+                                else {
                                     if (anca && anca.score > 0.3) {
-                                        if (anca.y > 230 && !emMovimento) { 
-                                            emMovimento = true; 
-                                        } 
-                                        if (anca.y < 160 && emMovimento) { 
+                                        if (anca.y > 220 && !emMovimento) emMovimento = true; 
+                                        if (anca.y < 165 && emMovimento) { 
                                             contadorReps++; 
                                             emMovimento = false; 
                                         }
                                     }
                                 }
-                                
-                                // 3. Flexões
-                                else if (desafio.tipo === 'pushup' || textoDesafioLower.includes('flex')) {
-                                    if (ombro && cotovelo && ombro.score > 0.3 && cotovelo.score > 0.3) {
-                                        let distVertical = Math.abs(ombro.y - cotovelo.y);
-                                        if (distVertical < 35 && !emMovimento) emMovimento = true;
-                                        if (distVertical > 65 && emMovimento) {
-                                            contadorReps++;
-                                            emMovimento = false;
-                                        }
-                                    }
-                                }
-                                
-                                // 4. Agachamentos
-                                else if (desafio.tipo === 'squat' || textoDesafioLower.includes('agach')) {
-                                    if (anca && joelho && anca.score > 0.3 && joelho.score > 0.3) {
-                                        if (anca.y >= (joelho.y - 15) && !emMovimento) emMovimento = true;
-                                        if (anca.y < (joelho.y - 45) && emMovimento) {
-                                            contadorReps++;
-                                            emMovimento = false;
-                                        }
-                                    }
-                                }
                             }
                         } catch (err) { 
-                            console.error("Erro no processamento do frame de IA:", err); 
+                            console.error(err); 
+                        }
+
+                        // Atualização em tempo real dos elementos profissionais da UI
+                        const elStatus = document.getElementById('ia-feedback-status');
+                        const elDigital = document.getElementById('ia-counter-digital');
+                        const elBar = document.getElementById('ia-progress-bar');
+
+                        if (elStatus) { elStatus.textContent = feedbackTexto; elStatus.style.color = feedbackCor; }
+                        if (elDigital) elDigital.textContent = `${contadorReps} / ${desafio.meta}`;
+                        if (elBar) {
+                            let percentagem = (contadorReps / desafio.meta) * 100;
+                            elBar.style.width = `${Math.min(percentagem, 100)}%`;
                         }
 
                         if (desafio.tipo === 'hold') {
@@ -776,29 +860,7 @@ document.addEventListener('DOMContentLoaded', init);
                         if (contadorReps >= desafio.meta) {
                             loopAtivoIA = false;
                             if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
-                            
-                            alert(`🔥 INCRÍVEL! Exercício validado pela IA. Ganhaste +${desafio.pontos} pontos!`);
-                            
-                            userLogado.points = (parseInt(userLogado.points) || 0) + parseInt(desafio.pontos);
-                            if (!userLogado.workouts) userLogado.workouts = [];
-                            userLogado.workouts.push({
-                                data: new Date().toLocaleDateString('pt-PT'),
-                                pontos: desafio.pontos,
-                                detalhe: `Desafio Validado por IA: ${desafio.texto}`
-                            });
-                            
-                            userLogado.desafioAtivo = null;
-                            localStorage.setItem('vh_fitness_logged_in', JSON.stringify(userLogado));
-
-                            let dbGeral = JSON.parse(localStorage.getItem('vh_fitness_users')) || {};
-                            if (dbGeral[userLogado.email]) {
-                                dbGeral[userLogado.email].points = userLogado.points;
-                                dbGeral[userLogado.email].workouts = userLogado.workouts;
-                                dbGeral[userLogado.email].desafioAtivo = null;
-                                localStorage.setItem('vh_fitness_users', JSON.stringify(dbGeral));
-                            }
-
-                            setTimeout(() => { location.reload(); }, 300);
+                            finalizarDesafioSucesso(userLogado, desafio, `Validado por IA (${desafio.texto})`);
                         } else {
                             if (loopAtivoIA) window.requestAnimationFrame(processarFrame);
                         }
@@ -807,12 +869,37 @@ document.addEventListener('DOMContentLoaded', init);
                     window.requestAnimationFrame(processarFrame);
 
                 } catch (errCamera) {
-                    alert("Erro crítico: A câmara não responde ou o modelo PoseNet falhou ao carregar.");
+                    alert("Erro ao aceder à câmara.");
                     console.error(errCamera);
                     btnSubmeter.disabled = false;
                     btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Tentar Novamente`;
                 }
             });
+        }
+
+        function finalizarDesafioSucesso(userLogado, desafio, detalheTexto) {
+            alert(`🔥 EXCELENTE! Desafio concluído com sucesso. Ganhaste +${desafio.pontos} pontos!`);
+            
+            userLogado.points = (parseInt(userLogado.points) || 0) + parseInt(desafio.pontos);
+            if (!userLogado.workouts) userLogado.workouts = [];
+            userLogado.workouts.push({
+                data: new Date().toLocaleDateString('pt-PT'),
+                pontos: desafio.pontos,
+                detalhe: detalheTexto
+            });
+            
+            userLogado.desafioAtivo = null;
+            localStorage.setItem('vh_fitness_logged_in', JSON.stringify(userLogado));
+
+            let dbGeral = JSON.parse(localStorage.getItem('vh_fitness_users')) || {};
+            if (dbGeral[userLogado.email]) {
+                dbGeral[userLogado.email].points = userLogado.points;
+                dbGeral[userLogado.email].workouts = userLogado.workouts;
+                dbGeral[userLogado.email].desafioAtivo = null;
+                localStorage.setItem('vh_fitness_users', JSON.stringify(dbGeral));
+            }
+
+            setTimeout(() => { location.reload(); }, 300);
         }
     });
 })();

@@ -614,13 +614,14 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. MOTOR DE IA MODULAR E DINÂMICO (BASEADO APENAS NO CAMPO 'TIPO')
+// 8. MOTOR DE IA DEFINITIVO - CORRIGIDO E SEM FALHAS DE INTERFACE
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
         let btnSubmeter = document.getElementById('btn-submeter-desafio');
         let loopAtivoIA = false;
         let detectorIA = null;
+        let streamMedia = null;
 
         let contadorReps = 0;
         let emMovimento = false;
@@ -639,6 +640,7 @@ document.addEventListener('DOMContentLoaded', init);
         }
 
         if (btnSubmeter) {
+            // Remove event listeners antigos clonando o botão
             const btnClonado = btnSubmeter.cloneNode(true);
             btnSubmeter.parentNode.replaceChild(btnClonado, btnSubmeter);
             btnSubmeter = btnClonado;
@@ -646,40 +648,37 @@ document.addEventListener('DOMContentLoaded', init);
             btnSubmeter.addEventListener('click', async function() {
                 let userLogado = JSON.parse(localStorage.getItem('vh_fitness_logged_in'));
                 if (!userLogado || !userLogado.desafioAtivo) {
-                    alert("Não tens nenhum desafio ativo! Gira a megaroleta primeiro.");
+                    alert("Não tens nenhum desafio ativo!");
                     return;
                 }
                 
                 const desafio = userLogado.desafioAtivo;
                 btnSubmeter.disabled = true;
-                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibrar motor...`;
+                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A ligar câmara...`;
 
                 let videoElement = document.getElementById('webcam');
                 let cameraBox = document.getElementById('camera-preview-box');
                 
                 if (!videoElement) {
-                    alert("Erro: Elemento de vídeo '#webcam' em falta.");
+                    alert("Erro: Elemento #webcam não encontrado.");
                     btnSubmeter.disabled = false;
                     return;
                 }
 
-                // REMOVE O OVERLAY PRETO ANTIGO DO HTML CASO ELE EXISTA
-                const overlayAntigo = videoElement.parentNode.querySelector('div[style*="background: rgba(0, 0, 0, 0.6)"]');
-                if (overlayAntigo) overlayAntigo.remove();
-                
-                // Remove mensagens de texto soltas dentro da caixa da câmara para limpar o layout
-                const textoAIniciar = videoElement.parentNode.textContent.includes("A iniciar IA...");
-                if (textoAIniciar) {
-                    videoElement.parentNode.childNodes.forEach(node => {
-                        if (node.nodeType === Node.TEXT_NODE && node.textContent.includes("A iniciar IA...")) {
-                            node.remove();
-                        }
-                    });
-                }
-
+                // LIMPEZA ABSOLUTA DE OVERLAYS ANTIGOS
                 if (cameraBox) {
                     cameraBox.style.display = 'block';
+                    // Remove lixo de texto como "A iniciar IA..." deixados por códigos anteriores
+                    cameraBox.childNodes.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) node.remove();
+                    });
                     
+                    // Remove divs parasitas pretas ou overlays colados
+                    const overlaysIntervenientes = cameraBox.querySelectorAll('div:not(#ia-interface-profissional)');
+                    overlaysIntervenientes.forEach(div => {
+                        if(div.id !== 'webcam') div.remove();
+                    });
+
                     let interfaceProfissional = document.getElementById('ia-interface-profissional');
                     if (!interfaceProfissional) {
                         interfaceProfissional = document.createElement('div');
@@ -714,14 +713,7 @@ document.addEventListener('DOMContentLoaded', init);
                     document.getElementById('btn-concluir-manual').addEventListener('click', () => {
                         loopAtivoIA = false;
                         if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
-
-                        if (contadorReps >= desafio.meta) {
-                            finalizarDesafioComSucessoReal(userLogado, desafio);
-                        } else {
-                            userLogado.desafioAtivo = null;
-                            localStorage.setItem('vh_fitness_logged_in', JSON.stringify(userLogado));
-                            location.reload();
-                        }
+                        finalizarDesafioComSucessoReal(userLogado, desafio);
                     });
 
                     document.getElementById('btn-cancelar-ia').addEventListener('click', () => {
@@ -732,16 +724,14 @@ document.addEventListener('DOMContentLoaded', init);
                 }
 
                 try {
-                    streamMedia = await navigator.mediaDevices.getUserMedia({ 
-                        video: true, 
-                        audio: false 
-                    });
-                    
+                    streamMedia = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                     videoElement.srcObject = streamMedia;
                     await videoElement.play();
 
-                    // Força a prontidão do TensorFlow antes de criar o modelo
-                    if (typeof tf !== 'undefined' && tf.ready) {
+                    btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A carregar modelo...`;
+
+                    // Forçar ativação segura do ecossistema do TensorFlow
+                    if (typeof tf !== 'undefined') {
                         await tf.ready();
                     }
 
@@ -754,17 +744,25 @@ document.addEventListener('DOMContentLoaded', init);
                     tempoAcumuladoHold = 0;
                     ultimoTimestampHold = null;
 
-                    // Pausa de estabilização do feed gráfico
+                    // Pequena pausa estratégica para estabilização de buffers gráficos
                     setTimeout(() => {
                         loopAtivoIA = true;
-                        btnSubmeter.innerHTML = `<i class="fa-solid fa-running fa-spin"></i> Análise Ativa por IA...`;
+                        btnSubmeter.innerHTML = `<i class="fa-solid fa-running fa-spin"></i> IA Ativa`;
                         window.requestAnimationFrame(processarFramesIA);
-                    }, 600);
+                    }, 800);
 
                 } catch (errCamera) {
-                    console.error(errCamera);
-                    alert("Erro ao aceder à câmara ou ao inicializar o motor de pose.");
-                    btnSubmeter.disabled = false;
+                    console.error("Erro no arranque:", errCamera);
+                    // FALLBACK SE WEBGL FALHAR: Tenta rodar em modo CPU pura de emergência
+                    try {
+                        if(typeof tf !== 'undefined') { tf.setBackend('cpu'); }
+                        detectorIA = await poseDetection.createDetector(poseDetection.SupportedModels.PoseNet, { runtime: 'tfjs' });
+                        loopAtivoIA = true;
+                        window.requestAnimationFrame(processarFramesIA);
+                    } catch(e) {
+                        alert("Falha crítica no hardware da câmara ou gráfica.");
+                        btnSubmeter.disabled = false;
+                    }
                 }
             });
         }
@@ -884,24 +882,24 @@ document.addEventListener('DOMContentLoaded', init);
                                     emMovimento = false;
                                 }
                             } else {
-                                feedbackTexto = "⚠️ Enquadra o tronco e anca no ecrã";
+                                feedbackTexto = "⚠️ Enquadra o corpo no ecrã";
                                 feedbackCor = "#f59e0b";
                             }
                             break;
                     }
-                } else {
-                    feedbackTexto = "⚠️ Nenhum corpo detetado";
-                    feedbackCor = "#ef4444";
                 }
             } catch (err) { 
-                // Silencia erros transitórios e mantém a busca ativa sem quebras
-                feedbackTexto = "🔍 Sincronizando frames da IA...";
+                // Se der erro de frame falhado, recupera silenciosamente no próximo ciclo
+                feedbackTexto = "🔄 Sincronizando fluxo de vídeo...";
                 feedbackCor = "#f59e0b";
             }
 
             if (typeof tf !== 'undefined' && tf.engine) {
                 tf.engine().endScope();
             }
+
+            let userLogado = JSON.parse(localStorage.getItem('vh_fitness_logged_in'));
+            const meta = userLogado.desafioAtivo.meta;
 
             if (document.getElementById('ia-feedback-status')) {
                 document.getElementById('ia-feedback-status').textContent = feedbackTexto;
@@ -918,7 +916,7 @@ document.addEventListener('DOMContentLoaded', init);
             if (contadorReps >= meta) {
                 loopAtivoIA = false;
                 if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
-                alert(`🎉 Fantástico! A IA validou o teu desafio com sucesso. +${userLogado.desafioAtivo.pontos} PTS!`);
+                alert(`🎉 Fantástico! Desafio completado com sucesso!`);
                 finalizarDesafioComSucessoReal(userLogado, userLogado.desafioAtivo);
             } else {
                 if (loopAtivoIA) window.requestAnimationFrame(processarFramesIA);

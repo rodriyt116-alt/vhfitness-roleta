@@ -550,7 +550,7 @@ function alternarAbasVHFitness(abaAlvo) {
 }
 
 // ==========================================================================
-// 7. INICIALIZAÇÃO DO ECOSSISTEMA
+// 7. INICIALIZAÇÃO DO ECOSSISTEMA GERAL
 // ==========================================================================
 function init() {
     inicializarAutenticacao();
@@ -614,11 +614,19 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. CORREÇÃO, ANÁLISE DE POSTURA (QUALITY CHECK) E BOTÃO CONCLUIR MANUAL
+// 8. MOTOR DE IA REAL E CONTROLO OBRIGATÓRIO SOLICITADO PELO UTILIZADOR
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
         let btnSubmeter = document.getElementById('btn-submeter-desafio');
+        let loopAtivoIA = false;
+        let detectorIA = null;
+
+        // Variáveis internas da sessão de treino ativa
+        let contadorReps = 0;
+        let emMovimento = false;
+        let tempoAcumuladoHold = 0;
+        let ultimoTimestampHold = null;
 
         if (btnSubmeter) {
             const btnClonado = btnSubmeter.cloneNode(true);
@@ -634,19 +642,18 @@ document.addEventListener('DOMContentLoaded', init);
                 
                 const desafio = userLogado.desafioAtivo;
                 btnSubmeter.disabled = true;
-                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibrar detetor...`;
+                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibar motor de pose...`;
 
                 let videoElement = document.getElementById('webcam');
                 let cameraBox = document.getElementById('camera-preview-box');
                 
                 if (!videoElement) {
-                    alert("Erro: Elemento de vídeo '#webcam' não foi encontrado no teu HTML.");
+                    alert("Erro: Elemento de vídeo '#webcam' em falta no teu layout.");
                     btnSubmeter.disabled = false;
-                    btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Iniciar Análise`;
                     return;
                 }
 
-                // Injectar dinamicamente a UI profissional (Barra de Progresso, Feedback e Botão Concluir)
+                // Injetar dinamicamente a barra de progresso, status e o botão Concluir ao lado do ecrã
                 if (cameraBox) {
                     cameraBox.style.display = 'block';
                     
@@ -655,38 +662,57 @@ document.addEventListener('DOMContentLoaded', init);
                         interfaceProfissional = document.createElement('div');
                         interfaceProfissional.id = 'ia-interface-profissional';
                         interfaceProfissional.style.cssText = `
-                            margin-top: 15px; background: #1a1a1a; padding: 16px; 
-                            border-radius: 14px; border: 1px solid #2e2e2e; color: #ffffff;
+                            margin-top: 15px; background: #141414; padding: 16px; 
+                            border-radius: 14px; border: 1px solid #262626; color: #ffffff;
                         `;
                         cameraBox.appendChild(interfaceProfissional);
                     }
                     
                     interfaceProfissional.innerHTML = `
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <span id="ia-feedback-status" style="font-weight: 700; color: #f59e0b;">🟡 A Aguardar Posicionamento...</span>
-                            <span id="ia-counter-digital" style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #4ade80;">0 / ${desafio.meta}</span>
+                            <span id="ia-feedback-status" style="font-weight: 700; color: #f59e0b;">🟢 A detetar corpo...</span>
+                            <span id="ia-counter-digital" style="font-family: monospace; font-size: 1.2rem; font-weight: 700; color: #4ade80;">0 / ${desafio.meta}</span>
                         </div>
-                        <div style="width: 100%; bg: #333; background: #2a2a2a; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
-                            <div id="ia-progress-bar" style="width: 0%; background: #4ade80; height: 100%; transition: width 0.2s;"></div>
+                        <div style="width: 100%; background: #262626; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 15px;">
+                            <div id="ia-progress-bar" style="width: 0%; background: #4ade80; height: 100%; transition: width 0.1s;"></div>
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <button id="btn-concluir-manual" style="
-                                flex: 1; background: #2563eb; color: #ffffff; border: none; 
-                                padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;
-                            "><i class="fa-solid fa-circle-check"></i> Concluir Manual</button>
+                                flex: 1; background: #22c55e; color: #000000; border: none; 
+                                padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s;
+                            ">🏁 Concluir Treino</button>
                             <button id="btn-cancelar-ia" style="
                                 background: #ef4444; color: #ffffff; border: none; 
-                                padding: 12px 18px; border-radius: 10px; font-weight: 600; cursor: pointer;
+                                padding: 12px 16px; border-radius: 10px; font-weight: 600; cursor: pointer;
                             "><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     `;
 
-                    // Evento para Concluir Manualmente
+                    // LÓGICA DO BOTÃO PEDIDO: VERIFICA SE COMPRIU PARA DAR OU NÃO OS CRÉDITOS
                     document.getElementById('btn-concluir-manual').addEventListener('click', () => {
-                        finalizarDesafioSucesso(userLogado, desafio, "Concluído Manualmente pelo Utilizador");
+                        loopAtivoIA = false;
+                        if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
+
+                        if (contadorReps >= desafio.meta) {
+                            // DESAFIO COMPRIDO NA TOTALIDADE -> GANHA CRÉDITOS
+                            alert(`🎉 Treino Concluído com Sucesso!\n\nTu cumpriste o desafio atingindo a meta necessária de ${desafio.meta}.\nGanhaste +${desafio.pontos} créditos no teu saldo total!`);
+                            finalizarDesafioComSucessoReal(userLogado, desafio);
+                        } else {
+                            // DESAFIO INCOMPLETO -> NÃO GANHA NADA, PERDE O DESAFIO ATIVO
+                            alert(`❌ Treino Incompleto!\n\nFizeste apenas ${contadorReps} de ${desafio.meta} necessários.\nComo o desafio NÃO foi totalmente comprido, não ganhaste nenhuns créditos desta vez. Continua a esforçar-te!`);
+                            
+                            userLogado.desafioAtivo = null;
+                            localStorage.setItem('vh_fitness_logged_in', JSON.stringify(userLogado));
+                            
+                            let dbGeral = JSON.parse(localStorage.getItem('vh_fitness_users')) || {};
+                            if (dbGeral[userLogado.email]) {
+                                dbGeral[userLogado.email].desafioAtivo = null;
+                                localStorage.setItem('vh_fitness_users', JSON.stringify(dbGeral));
+                            }
+                            location.reload();
+                        }
                     });
 
-                    // Evento para Cancelar/Fechar Câmara
                     document.getElementById('btn-cancelar-ia').addEventListener('click', () => {
                         loopAtivoIA = false;
                         if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
@@ -696,198 +722,159 @@ document.addEventListener('DOMContentLoaded', init);
 
                 try {
                     streamMedia = await navigator.mediaDevices.getUserMedia({ 
-                        video: { width: { ideal: 257 }, height: { ideal: 257 }, facingMode: "user" }, 
+                        video: { width: 257, height: 257, facingMode: "user" }, 
                         audio: false 
                     });
                     
                     videoElement.srcObject = streamMedia;
                     await videoElement.play();
 
-                    if (typeof tf !== 'undefined') {
-                        await tf.setBackend('webgl');
-                        await tf.ready();
-                    }
-
-                    let detectorIA = await poseDetection.createDetector(
+                    detectorIA = await poseDetection.createDetector(
                         poseDetection.SupportedModels.PoseNet, { runtime: 'tfjs' }
                     );
 
-                    let contadorReps = 0;
-                    let emMovimento = false;
-                    let loopAtivoIA = true;
-                    let tempoAcumuladoHold = 0; 
-                    let ultimoTimestampHold = null;
+                    // Reset absoluto dos contadores ao iniciar o feed da câmara
+                    contadorReps = 0;
+                    emMovimento = false;
+                    tempoAcumuladoHold = 0;
+                    ultimoTimestampHold = null;
+                    loopAtivoIA = true;
 
-                    console.log("🤖 Motor de IA Ligado.");
-
-                    async function processarFrame() {
-                        if (!loopAtivoIA) return;
-
-                        let feedbackTexto = "🟢 Postura Correta";
-                        let feedbackCor = "#4ade80";
-                        let posturaCorreta = true;
-
-                        try {
-                            const poses = await detectorIA.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
-                            
-                            if (poses && poses.length > 0 && poses[0].keypoints) {
-                                const keypoints = poses[0].keypoints;
-
-                                const lShoulder = keypoints.find(k => k.name === 'left_shoulder');
-                                const rShoulder = keypoints.find(k => k.name === 'right_shoulder');
-                                const ombro = (lShoulder?.score > (rShoulder?.score || 0)) ? lShoulder : rShoulder;
-
-                                const lHip = keypoints.find(k => k.name === 'left_hip');
-                                const rHip = keypoints.find(k => k.name === 'right_hip');
-                                const anca = (lHip?.score > (rHip?.score || 0)) ? lHip : rHip;
-
-                                const lKnee = keypoints.find(k => k.name === 'left_knee');
-                                const rKnee = keypoints.find(k => k.name === 'right_knee');
-                                const joelho = (lKnee?.score > (rKnee?.score || 0)) ? lKnee : rKnee;
-
-                                const lElbow = keypoints.find(k => k.name === 'left_elbow');
-                                const rElbow = keypoints.find(k => k.name === 'right_elbow'); 
-                                const cotovelo = (lElbow?.score > (rElbow?.score || 0)) ? lElbow : rElbow;
-
-                                const textoDesafioLower = desafio.texto.toLowerCase();
-
-                                // --- LOGICA 1: EXERCÍCIOS DE TEMPO (HOLD / PRANCHAS) ---
-                                if (desafio.tipo === 'hold' || textoDesafioLower.includes('prancha') || textoDesafioLower.includes('manter')) {
-                                    // Verificação de Qualidade da Prancha: ombro e bacia devem estar minimamente alinhados na horizontal
-                                    if (ombro && anca && ombro.score > 0.4 && anca.score > 0.4) {
-                                        let diferencaAlinhamento = Math.abs(ombro.y - anca.y);
-                                        if (diferencaAlinhamento > 55) { 
-                                            posturaCorreta = false;
-                                            feedbackTexto = "⚠️ Alinha a Bacia!";
-                                            feedbackCor = "#ef4444";
-                                        }
-                                    } else {
-                                        posturaCorreta = false;
-                                        feedbackTexto = "⚠️ Afasta-te para focar o corpo";
-                                        feedbackCor = "#f59e0b";
-                                    }
-
-                                    if (posturaCorreta) {
-                                        let agora = Date.now();
-                                        if (ultimoTimestampHold) {
-                                            tempoAcumuladoHold += (agora - ultimoTimestampHold) / 1000;
-                                        }
-                                        ultimoTimestampHold = agora;
-                                        contadorReps = Math.floor(tempoAcumuladoHold);
-                                    } else {
-                                        // Se estiver a fazer mal, pausa o tempo limpando o timestamp de referência
-                                        ultimoTimestampHold = null;
-                                    }
-                                }
-                                
-                                // --- LOGICA 2: FLEXÕES (PUSHUPS) QUALITY CHECK ---
-                                else if (desafio.tipo === 'pushup' || textoDesafioLower.includes('flex')) {
-                                    if (ombro && cotovelo && anca && ombro.score > 0.4 && cotovelo.score > 0.4) {
-                                        let distVerticalDescida = Math.abs(ombro.y - cotovelo.y);
-                                        let quebraBacia = anca.y - ombro.y;
-
-                                        if (quebraBacia < -15) {
-                                            feedbackTexto = "⚠️ Alinha as costas!";
-                                            feedbackCor = "#ef4444";
-                                            emMovimento = false; // Bloqueia repetição errada
-                                        } else {
-                                            if (distVerticalDescida < 30 && !emMovimento) {
-                                                emMovimento = true; 
-                                            }
-                                            if (distVerticalDescida > 60 && emMovimento) {
-                                                contadorReps++;
-                                                emMovimento = false;
-                                            }
-                                            if (emMovimento) {
-                                                feedbackTexto = "💪 Boa amplitude! Sobe...";
-                                                feedbackCor = "#3b82f6";
-                                            }
-                                        }
-                                    } else {
-                                        feedbackTexto = "⚠️ Enquadra o perfil na câmara";
-                                        feedbackCor = "#f59e0b";
-                                    }
-                                }
-                                
-                                // --- LOGICA 3: AGACHAMENTOS (SQUATS) ---
-                                else if (desafio.tipo === 'squat' || textoDesafioLower.includes('agach')) {
-                                    if (anca && joelho && anca.score > 0.4 && joelho.score > 0.4) {
-                                        if (anca.y >= (joelho.y - 10) && !emMovimento) emMovimento = true;
-                                        if (anca.y < (joelho.y - 45) && emMovimento) {
-                                            contadorReps++;
-                                            emMovimento = false;
-                                        }
-                                        if (emMovimento) {
-                                            feedbackTexto = "🔥 Agachamento profundo! Sobe...";
-                                            feedbackCor = "#3b82f6";
-                                        }
-                                    }
-                                }
-                                
-                                // --- LOGICA 4: EXERCÍCIOS GERAIS DE REPETIÇÃO ---
-                                else {
-                                    if (anca && anca.score > 0.3) {
-                                        if (anca.y > 220 && !emMovimento) emMovimento = true; 
-                                        if (anca.y < 165 && emMovimento) { 
-                                            contadorReps++; 
-                                            emMovimento = false; 
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (err) { 
-                            console.error(err); 
-                        }
-
-                        // Atualização em tempo real dos elementos profissionais da UI
-                        const elStatus = document.getElementById('ia-feedback-status');
-                        const elDigital = document.getElementById('ia-counter-digital');
-                        const elBar = document.getElementById('ia-progress-bar');
-
-                        if (elStatus) { elStatus.textContent = feedbackTexto; elStatus.style.color = feedbackCor; }
-                        if (elDigital) elDigital.textContent = `${contadorReps} / ${desafio.meta}`;
-                        if (elBar) {
-                            let percentagem = (contadorReps / desafio.meta) * 100;
-                            elBar.style.width = `${Math.min(percentagem, 100)}%`;
-                        }
-
-                        if (desafio.tipo === 'hold') {
-                            btnSubmeter.innerHTML = `<i class="fa-solid fa-stopwatch fa-spin"></i> Tempo: ${contadorReps}s / ${desafio.meta}s`;
-                        } else {
-                            btnSubmeter.innerHTML = `<i class="fa-solid fa-running fa-spin"></i> Contagem IA: ${contadorReps} / ${desafio.meta}`;
-                        }
-
-                        if (contadorReps >= desafio.meta) {
-                            loopAtivoIA = false;
-                            if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
-                            finalizarDesafioSucesso(userLogado, desafio, `Validado por IA (${desafio.texto})`);
-                        } else {
-                            if (loopAtivoIA) window.requestAnimationFrame(processarFrame);
-                        }
-                    }
-
-                    window.requestAnimationFrame(processarFrame);
+                    btnSubmeter.innerHTML = `<i class="fa-solid fa-running fa-spin"></i> Análise Ativa por IA...`;
+                    window.requestAnimationFrame(processarFramesIA);
 
                 } catch (errCamera) {
                     alert("Erro ao aceder à câmara.");
-                    console.error(errCamera);
                     btnSubmeter.disabled = false;
-                    btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Tentar Novamente`;
                 }
             });
         }
 
-        function finalizarDesafioSucesso(userLogado, desafio, detalheTexto) {
-            alert(`🔥 EXCELENTE! Desafio concluído com sucesso. Ganhaste +${desafio.pontos} pontos!`);
-            
+        async function processarFramesIA() {
+            if (!loopAtivoIA) return;
+
+            let videoElement = document.getElementById('webcam');
+            let feedbackTexto = "🟢 Postura Correta";
+            let feedbackCor = "#4ade80";
+            let posturaCorreta = true;
+
+            try {
+                const poses = await detectorIA.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
+                
+                if (poses && poses.length > 0 && poses[0].keypoints) {
+                    const keypoints = poses[0].keypoints;
+
+                    const ombro = keypoints.find(k => k.name === 'left_shoulder' || k.name === 'right_shoulder');
+                    const anca = keypoints.find(k => k.name === 'left_hip' || k.name === 'right_hip');
+                    const cotovelo = keypoints.find(k => k.name === 'left_elbow' || k.name === 'right_elbow');
+                    const joelho = keypoints.find(k => k.name === 'left_knee' || k.name === 'right_knee');
+
+                    let userLogado = JSON.parse(localStorage.getItem('vh_fitness_logged_in'));
+                    const desafio = userLogado.desafioAtivo;
+                    const textoLower = desafio.texto.toLowerCase();
+
+                    // --- REGRA 1: EXERCÍCIOS EM SEGUNDOS (HOLD/PRANCHA) ---
+                    if (desafio.tipo === 'hold' || textoLower.includes('manter') || textoLower.includes('prancha') || textoLower.includes('segundos')) {
+                        if (ombro && anca && ombro.score > 0.4 && anca.score > 0.4) {
+                            let diferencaVertical = Math.abs(ombro.y - anca.y);
+                            if (diferencaVertical > 52) { // Bacia desabada ou empinada demais
+                                posturaCorreta = false;
+                                feedbackTexto = "⚠️ Alinha a bacia! Postura errada (Tempo Parado)";
+                                feedbackCor = "#ef4444";
+                            }
+                        } else {
+                            posturaCorreta = false;
+                            feedbackTexto = "⚠️ Enquadra o teu corpo por completo";
+                            feedbackCor = "#f59e0b";
+                        }
+
+                        if (posturaCorreta) {
+                            let agora = Date.now();
+                            if (ultimoTimestampHold) {
+                                tempoAcumuladoHold += (agora - ultimoTimestampHold) / 1000;
+                            }
+                            ultimoTimestampHold = agora;
+                            contadorReps = Math.floor(tempoAcumuladoHold);
+                        } else {
+                            // Se estiver errado ou a fazer mal, o relógio congela imediatamente no valor atual
+                            ultimoTimestampHold = null;
+                        }
+                    }
+                    
+                    // --- REGRA 2: FLEXÕES DE BRAÇOS (PUSHUP) ---
+                    else if (desafio.tipo === 'pushup' || textoLower.includes('flex')) {
+                        if (ombro && cotovelo && anca && ombro.score > 0.4 && cotovelo.score > 0.4) {
+                            let amplitudeDescida = Math.abs(ombro.y - cotovelo.y);
+                            let desalinhamentoCostas = anca.y - ombro.y;
+
+                            if (desalinhamentoCostas < -12) {
+                                feedbackTexto = "⚠️ Alinha as costas! Repetição travada";
+                                feedbackCor = "#ef4444";
+                                emMovimento = false; 
+                            } else {
+                                if (amplitudeDescida < 32 && !emMovimento) {
+                                    emMovimento = true; // Quebrou a linha dos cotovelos (desceu bem)
+                                }
+                                if (amplitudeDescida > 60 && emMovimento) {
+                                    contadorReps++; // Esticou os braços novamente (subiu bem)
+                                    emMovimento = false;
+                                }
+                            }
+                        } else {
+                            feedbackTexto = "⚠️ Coloca-te de perfil para validação";
+                            feedbackCor = "#f59e0b";
+                        }
+                    }
+                    
+                    // --- REGRA 3: AGACHAMENTOS (SQUATS) ---
+                    else if (desafio.tipo === 'squat' || textoLower.includes('agach')) {
+                        if (anca && joelho && anca.score > 0.4 && joelho.score > 0.4) {
+                            if (anca.y >= (joelho.y - 10) && !emMovimento) emMovimento = true;
+                            if (anca.y < (joelho.y - 45) && emMovimento) {
+                                contadorReps++;
+                                emMovimento = false;
+                            }
+                        }
+                    }
+                }
+            } catch (err) { console.error(err); }
+
+            // Atualização dinâmica das labels da UI Profissional
+            let userLogado = JSON.parse(localStorage.getItem('vh_fitness_logged_in'));
+            const meta = userLogado.desafioAtivo.meta;
+
+            if (document.getElementById('ia-feedback-status')) {
+                document.getElementById('ia-feedback-status').textContent = feedbackTexto;
+                document.getElementById('ia-feedback-status').style.color = feedbackCor;
+            }
+            if (document.getElementById('ia-counter-digital')) {
+                document.getElementById('ia-counter-digital').textContent = `${contadorReps} / ${meta}`;
+            }
+            if (document.getElementById('ia-progress-bar')) {
+                let percentagem = (contadorReps / meta) * 100;
+                document.getElementById('ia-progress-bar').style.width = `${Math.min(percentagem, 100)}%`;
+            }
+
+            // Validação de término automática se completar via IA
+            if (contadorReps >= meta) {
+                loopAtivoIA = false;
+                if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
+                alert(`🎉 Fantástico! A IA validou as tuas repetições com sucesso. Ganhaste +${userLogado.desafioAtivo.pontos} créditos!`);
+                finalizarDesafioComSucessoReal(userLogado, userLogado.desafioAtivo);
+            } else {
+                if (loopAtivoIA) window.requestAnimationFrame(processarFramesIA);
+            }
+        }
+
+        function finalizarDesafioComSucessoReal(userLogado, desafio) {
             userLogado.points = (parseInt(userLogado.points) || 0) + parseInt(desafio.pontos);
             if (!userLogado.workouts) userLogado.workouts = [];
             userLogado.workouts.push({
                 data: new Date().toLocaleDateString('pt-PT'),
                 pontos: desafio.pontos,
-                detalhe: detalheTexto
+                detalhe: `Desafio Nº ${desafio.id} Completado`
             });
-            
+
             userLogado.desafioAtivo = null;
             localStorage.setItem('vh_fitness_logged_in', JSON.stringify(userLogado));
 
@@ -898,8 +885,7 @@ document.addEventListener('DOMContentLoaded', init);
                 dbGeral[userLogado.email].desafioAtivo = null;
                 localStorage.setItem('vh_fitness_users', JSON.stringify(dbGeral));
             }
-
-            setTimeout(() => { location.reload(); }, 300);
+            setTimeout(() => { location.reload(); }, 250);
         }
     });
 })();

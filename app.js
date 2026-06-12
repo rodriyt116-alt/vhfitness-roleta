@@ -762,9 +762,14 @@ document.addEventListener('DOMContentLoaded', init);
 
     let videoElement = document.getElementById('webcam');
     
-    // DEFESA CRÍTICA: Se o vídeo não estiver pronto ou tiver largura 0, saltamos o frame de forma segura
+    // 1. DEFESA DE SEGURANÇA DO VÍDEO
     if (!videoElement || videoElement.readyState < 2 || videoElement.videoWidth === 0) {
-        // Aguarda o próximo frame sem estourar o console com exceções
+        if (loopAtivoIA) window.requestAnimationFrame(processarFramesIA);
+        return;
+    }
+
+    // 2. DEFESA DE SEGURANÇA DO DETETOR (Evita ler estimatePoses se for null)
+    if (!detectorIA) {
         if (loopAtivoIA) window.requestAnimationFrame(processarFramesIA);
         return;
     }
@@ -773,8 +778,12 @@ document.addEventListener('DOMContentLoaded', init);
     let feedbackCor = "#f59e0b";
     let posturaCorreta = true;
 
+    // Criar um escopo do TensorFlow para limpar resíduos de memória WebGL
+    if (typeof tf !== 'undefined' && tf.engine) {
+        tf.engine().startScope();
+    }
+
     try {
-        // Agora é seguro chamar o PoseNet
         const poses = await detectorIA.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
         
         if (poses && poses.length > 0 && poses[0].keypoints) {
@@ -883,9 +892,14 @@ document.addEventListener('DOMContentLoaded', init);
             feedbackCor = "#ef4444";
         }
     } catch (err) { 
-        console.error(err); 
-        feedbackTexto = "⚠️ Erro no processamento da IA";
-        feedbackCor = "#ef4444";
+        console.error("Erro interno do PoseNet:", err); 
+        feedbackTexto = "⚠️ Aguardando calibração da IA...";
+        feedbackCor = "#f59e0b";
+    }
+
+    // Fechar e limpar os tensores criados neste frame
+    if (typeof tf !== 'undefined' && tf.engine) {
+        tf.engine().endScope();
     }
 
     let userLogado = JSON.parse(localStorage.getItem('vh_fitness_logged_in'));

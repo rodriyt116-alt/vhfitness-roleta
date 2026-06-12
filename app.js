@@ -614,7 +614,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA (CORREÇÃO DE INSTANCIAÇÃO DO MODELO)
+// 8. PROCESSAMENTO ULTRA-OTIMIZADO DA IA (CORREÇÃO DE CHAMADA POSETNET S/ ARGS INVÁLIDOS)
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -668,24 +668,17 @@ document.addEventListener('DOMContentLoaded', init);
 
                     let detectorIA;
                     try {
-                        // ✅ SOLUÇÃO SUPREMA PARA RESOLVER O ERRO DE INSTANCIAÇÃO:
-                        // Mudámos a propriedade do PoseNet para 'modelConfig' estruturada. Isto diz ao motor
-                        // do PoseNet exatamente qual é a resolução de entrada esperada sem forçar cálculos internos inválidos.
+                        // ✅ SOLUÇÃO DEFINITIVA: Removidos parâmetros de config incompatíveis com o PoseNet moderno.
+                        // O detetor agora instancia de forma limpa sem tentar ler o outputStride de um objeto mal mapeado.
                         detectorIA = await poseDetection.createDetector(
                             poseDetection.SupportedModels.PoseNet, 
                             { 
-                                runtime: 'tfjs',
-                                modelConfig: {
-                                    architecture: 'MobileNetV1', 
-                                    outputStride: 16, 
-                                    inputResolution: { width: 257, height: 257 },
-                                    multiplier: 0.75
-                                }
+                                runtime: 'tfjs'
                             }
                         );
                     } catch (erroModelo) {
                         console.error("Falha ao instanciar o modelo PoseNet:", erroModelo);
-                        alert("O motor de IA falhou ao compilar em segundo plano. Detalhes na consola do programador.");
+                        alert("O motor de IA falhou ao compilar em segundo plano. Verifique o console.");
                         btnSubmeter.disabled = false;
                         btnSubmeter.innerHTML = `<i class="fa-solid fa-camera"></i> Voltar a Tentar`;
                         return;
@@ -696,7 +689,7 @@ document.addEventListener('DOMContentLoaded', init);
                     let loopAtivoIA = true;
                     let tempoInicioHold = null;
 
-                    console.log("🤖 IA Inicializada. Lendo exercício:", desafio.texto);
+                    console.log("🤖 IA Inicializada com sucesso. Lendo exercício:", desafio.texto);
 
                     async function processarFrame() {
                         if (!loopAtivoIA) return;

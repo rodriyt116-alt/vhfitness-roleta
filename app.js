@@ -32,7 +32,7 @@ const dicasVHFitness = [
     "Mantém-te hidratado! Sabias que podes trocar pontos por benefícios exclusivos?",
     "Foco no plano! Treinar com consistência liberta endorfinas.",
     "Bateu a preguiça? O único treino mau é aquele que não aconteceu.",
-    "O teu esforço compensa! Continua a registar os teus treinos diariamente."
+    "O teu esforço compensa! Continua a registar os tuas treinos diariamente."
 ];
 
 const coresRoleta = ['#22c55e', '#f97316', '#ef4444']; 
@@ -614,7 +614,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================================================
-// 8. MOTOR DE IA REAL E CONTROLO OBRIGATÓRIO SOLICITADO PELO UTILIZADOR
+// 8. MOTOR DE IA MODULAR E DINÂMICO (BASEADO APENAS NO CAMPO 'TIPO')
 // ==========================================================================
 (function() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -627,6 +627,18 @@ document.addEventListener('DOMContentLoaded', init);
         let emMovimento = false;
         let tempoAcumuladoHold = 0;
         let ultimoTimestampHold = null;
+
+        // Função geométrica auxiliar para obter o ângulo exato entre 3 articulações
+        function calcularAnguloArticulacao(p1, p2, p3) {
+            if (!p1 || !p2 || !p3 || p1.score < 0.3 || p2.score < 0.3 || p3.score < 0.3) return null;
+            let ab = { x: p1.x - p2.x, y: p1.y - p2.y };
+            let cb = { x: p3.x - p2.x, y: p3.y - p2.y };
+            let dotProduct = (ab.x * cb.x) + (ab.y * cb.y);
+            let normA = Math.sqrt(ab.x * ab.x + ab.y * ab.y);
+            let normB = Math.sqrt(cb.x * cb.x + cb.y * cb.y);
+            let anguloRad = Math.acos(dotProduct / (normA * normB));
+            return anguloRad * (180 / Math.PI);
+        }
 
         if (btnSubmeter) {
             const btnClonado = btnSubmeter.cloneNode(true);
@@ -642,7 +654,7 @@ document.addEventListener('DOMContentLoaded', init);
                 
                 const desafio = userLogado.desafioAtivo;
                 btnSubmeter.disabled = true;
-                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibar motor de pose...`;
+                btnSubmeter.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> A calibrar motor de pose...`;
 
                 let videoElement = document.getElementById('webcam');
                 let cameraBox = document.getElementById('camera-preview-box');
@@ -653,7 +665,6 @@ document.addEventListener('DOMContentLoaded', init);
                     return;
                 }
 
-                // Injetar dinamicamente a barra de progresso, status e o botão Concluir ao lado do ecrã
                 if (cameraBox) {
                     cameraBox.style.display = 'block';
                     
@@ -688,18 +699,15 @@ document.addEventListener('DOMContentLoaded', init);
                         </div>
                     `;
 
-                    // LÓGICA DO BOTÃO PEDIDO: VERIFICA SE COMPRIU PARA DAR OU NÃO OS CRÉDITOS
                     document.getElementById('btn-concluir-manual').addEventListener('click', () => {
                         loopAtivoIA = false;
                         if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
 
                         if (contadorReps >= desafio.meta) {
-                            // DESAFIO COMPRIDO NA TOTALIDADE -> GANHA CRÉDITOS
                             alert(`🎉 Treino Concluído com Sucesso!\n\nTu cumpriste o desafio atingindo a meta necessária de ${desafio.meta}.\nGanhaste +${desafio.pontos} créditos no teu saldo total!`);
                             finalizarDesafioComSucessoReal(userLogado, desafio);
                         } else {
-                            // DESAFIO INCOMPLETO -> NÃO GANHA NADA, PERDE O DESAFIO ATIVO
-                            alert(`❌ Treino Incompleto!\n\nFizeste apenas ${contadorReps} de ${desafio.meta} necessários.\nComo o desafio NÃO foi totalmente comprido, não ganhaste nenhuns créditos desta vez. Continua a esforçar-te!`);
+                            alert(`❌ Treino Incompleto!\n\nFizeste apenas ${contadorReps} de ${desafio.meta} necessários.\nComo o desafio NÃO foi totalmente cumprido, não ganhaste nenhuns créditos desta vez. Continua a esforçar-te!`);
                             
                             userLogado.desafioAtivo = null;
                             localStorage.setItem('vh_fitness_logged_in', JSON.stringify(userLogado));
@@ -733,7 +741,6 @@ document.addEventListener('DOMContentLoaded', init);
                         poseDetection.SupportedModels.PoseNet, { runtime: 'tfjs' }
                     );
 
-                    // Reset absoluto dos contadores ao iniciar o feed da câmara
                     contadorReps = 0;
                     emMovimento = false;
                     tempoAcumuladoHold = 0;
@@ -764,82 +771,110 @@ document.addEventListener('DOMContentLoaded', init);
                 if (poses && poses.length > 0 && poses[0].keypoints) {
                     const keypoints = poses[0].keypoints;
 
-                    const ombro = keypoints.find(k => k.name === 'left_shoulder' || k.name === 'right_shoulder');
-                    const anca = keypoints.find(k => k.name === 'left_hip' || k.name === 'right_hip');
+                    const esquerdoOmbro = keypoints.find(k => k.name === 'left_shoulder');
+                    const direitoOmbro = keypoints.find(k => k.name === 'right_shoulder');
+                    const esquerdoAnca = keypoints.find(k => k.name === 'left_hip');
+                    const direitoAnca = keypoints.find(k => k.name === 'right_hip');
+                    
+                    const ombro = (esquerdoOmbro?.score > direitoOmbro?.score) ? esquerdoOmbro : direitoOmbro;
+                    const anca = (esquerdoAnca?.score > direitoAnca?.score) ? esquerdoAnca : direitoAnca;
                     const cotovelo = keypoints.find(k => k.name === 'left_elbow' || k.name === 'right_elbow');
                     const joelho = keypoints.find(k => k.name === 'left_knee' || k.name === 'right_knee');
+                    const tornozelo = keypoints.find(k => k.name === 'left_ankle' || k.name === 'right_ankle');
 
                     let userLogado = JSON.parse(localStorage.getItem('vh_fitness_logged_in'));
                     const desafio = userLogado.desafioAtivo;
-                    const textoLower = desafio.texto.toLowerCase();
 
-                    // --- REGRA 1: EXERCÍCIOS EM SEGUNDOS (HOLD/PRANCHA) ---
-                    if (desafio.tipo === 'hold' || textoLower.includes('manter') || textoLower.includes('prancha') || textoLower.includes('segundos')) {
-                        if (ombro && anca && ombro.score > 0.4 && anca.score > 0.4) {
-                            let diferencaVertical = Math.abs(ombro.y - anca.y);
-                            if (diferencaVertical > 52) { // Bacia desabada ou empinada demais
-                                posturaCorreta = false;
-                                feedbackTexto = "⚠️ Alinha a bacia! Postura errada (Tempo Parado)";
-                                feedbackCor = "#ef4444";
-                            }
-                        } else {
-                            posturaCorreta = false;
-                            feedbackTexto = "⚠️ Enquadra o teu corpo por completo";
-                            feedbackCor = "#f59e0b";
-                        }
-
-                        if (posturaCorreta) {
-                            let agora = Date.now();
-                            if (ultimoTimestampHold) {
-                                tempoAcumuladoHold += (agora - ultimoTimestampHold) / 1000;
-                            }
-                            ultimoTimestampHold = agora;
-                            contadorReps = Math.floor(tempoAcumuladoHold);
-                        } else {
-                            // Se estiver errado ou a fazer mal, o relógio congela imediatamente no valor atual
-                            ultimoTimestampHold = null;
-                        }
-                    }
-                    
-                    // --- REGRA 2: FLEXÕES DE BRAÇOS (PUSHUP) ---
-                    else if (desafio.tipo === 'pushup' || textoLower.includes('flex')) {
-                        if (ombro && cotovelo && anca && ombro.score > 0.4 && cotovelo.score > 0.4) {
-                            let amplitudeDescida = Math.abs(ombro.y - cotovelo.y);
-                            let desalinhamentoCostas = anca.y - ombro.y;
-
-                            if (desalinhamentoCostas < -12) {
-                                feedbackTexto = "⚠️ Alinha as costas! Repetição travada";
-                                feedbackCor = "#ef4444";
-                                emMovimento = false; 
-                            } else {
-                                if (amplitudeDescida < 32 && !emMovimento) {
-                                    emMovimento = true; // Quebrou a linha dos cotovelos (desceu bem)
+                    // --- MUDANÇA ESSENCIAL: VALIDAÇÃO APENAS PELO CAMPO 'TIPO' INDEPENDENTE DO TEXTO ---
+                    switch (desafio.tipo) {
+                        
+                        case 'hold': // Qualquer exercício em Segundos / Isometria / Pranchas
+                            if (ombro && anca && joelho) {
+                                let anguloTroncoQuadril = calcularAnguloArticulacao(ombro, anca, joelho);
+                                
+                                if (anguloTroncoQuadril && (anguloTroncoQuadril < 152 || anguloTroncoQuadril > 195)) {
+                                    posturaCorreta = false;
+                                    feedbackTexto = "⚠️ Alinha a bacia! Postura errada (Tempo Parado)";
+                                    feedbackCor = "#ef4444";
                                 }
-                                if (amplitudeDescida > 60 && emMovimento) {
-                                    contadorReps++; // Esticou os braços novamente (subiu bem)
+                            } else {
+                                posturaCorreta = false;
+                                feedbackTexto = "⚠️ Enquadra o teu corpo inteiro de perfil";
+                                feedbackCor = "#f59e0b";
+                            }
+
+                            if (posturaCorreta) {
+                                let agora = Date.now();
+                                if (ultimoTimestampHold) {
+                                    tempoAcumuladoHold += (agora - ultimoTimestampHold) / 1000;
+                                }
+                                ultimoTimestampHold = agora;
+                                contadorReps = Math.floor(tempoAcumuladoHold);
+                            } else {
+                                ultimoTimestampHold = null; // Trava o cronómetro imediatamente
+                            }
+                            break;
+
+                        case 'pushup': // Qualquer tipo de Flexão de braços (Diamante, Lenta, Normal, etc.)
+                            if (ombro && cotovelo && anca) {
+                                let anguloCotovelo = calcularAnguloArticulacao(ombro, cotovelo, keypoints.find(k => k.name === 'left_wrist' || k.name === 'right_wrist'));
+                                let anguloPosturaCostas = calcularAnguloArticulacao(ombro, anca, joelho);
+
+                                if (anguloPosturaCostas && anguloPosturaCostas < 150) {
+                                    feedbackTexto = "⚠️ Alinha as costas! Repetição travada";
+                                    feedbackCor = "#ef4444";
+                                    emMovimento = false; 
+                                } else if (anguloCotovelo) {
+                                    if (anguloCotovelo < 95 && !emMovimento) {
+                                        emMovimento = true; // Desceu bem
+                                    }
+                                    if (anguloCotovelo > 160 && emMovimento) {
+                                        contadorReps++; // Esticou bem
+                                        emMovimento = false;
+                                    }
+                                }
+                            } else {
+                                feedbackTexto = "⚠️ Coloca-te de perfil para a câmara";
+                                feedbackCor = "#f59e0b";
+                            }
+                            break;
+
+                        case 'squat': // Qualquer variação de Agachamento (Sumo, clássico, com salto, etc.)
+                            if (anca && joelho && tornozelo) {
+                                let anguloJoelho = calcularAnguloArticulacao(anca, joelho, tornozelo);
+                                if (anguloJoelho) {
+                                    if (anguloJoelho < 100 && !emMovimento) {
+                                        emMovimento = true; // Agachou bem
+                                    }
+                                    if (anguloJoelho > 165 && emMovimento) {
+                                        contadorReps++; // Subiu bem
+                                        emMovimento = false;
+                                    }
+                                }
+                            } else {
+                                feedbackTexto = "⚠️ Afasta-te até a câmara apanhar os joelhos";
+                                feedbackCor = "#f59e0b";
+                            }
+                            break;
+
+                        case 'rep': // Exercícios genéricos (Burpees, Polichinelos, Lunges) usando tracking de oscilação
+                        default:
+                            if (anca && anca.score > 0.4) {
+                                let amplitudeMovimento = anca.y;
+                                if (amplitudeMovimento > 140 && !emMovimento) emMovimento = true;
+                                if (amplitudeMovimento < 110 && emMovimento) {
+                                    contadorReps++;
                                     emMovimento = false;
                                 }
+                            } else {
+                                feedbackTexto = "⚠️ Enquadra o corpo no centro do ecrã";
+                                feedbackCor = "#f59e0b";
                             }
-                        } else {
-                            feedbackTexto = "⚠️ Coloca-te de perfil para validação";
-                            feedbackCor = "#f59e0b";
-                        }
-                    }
-                    
-                    // --- REGRA 3: AGACHAMENTOS (SQUATS) ---
-                    else if (desafio.tipo === 'squat' || textoLower.includes('agach')) {
-                        if (anca && joelho && anca.score > 0.4 && joelho.score > 0.4) {
-                            if (anca.y >= (joelho.y - 10) && !emMovimento) emMovimento = true;
-                            if (anca.y < (joelho.y - 45) && emMovimento) {
-                                contadorReps++;
-                                emMovimento = false;
-                            }
-                        }
+                            break;
                     }
                 }
             } catch (err) { console.error(err); }
 
-            // Atualização dinâmica das labels da UI Profissional
             let userLogado = JSON.parse(localStorage.getItem('vh_fitness_logged_in'));
             const meta = userLogado.desafioAtivo.meta;
 
@@ -855,7 +890,6 @@ document.addEventListener('DOMContentLoaded', init);
                 document.getElementById('ia-progress-bar').style.width = `${Math.min(percentagem, 100)}%`;
             }
 
-            // Validação de término automática se completar via IA
             if (contadorReps >= meta) {
                 loopAtivoIA = false;
                 if (streamMedia) streamMedia.getTracks().forEach(track => track.stop());
